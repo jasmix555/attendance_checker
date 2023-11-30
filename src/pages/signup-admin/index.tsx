@@ -5,6 +5,8 @@ import {
   UserCredential,
   sendEmailVerification,
 } from "firebase/auth";
+// Import Firestore functions
+import { doc, collection, setDoc, getFirestore } from "firebase/firestore";
 import { useRouter } from "next/router";
 import style from "@/styles/registration.module.scss";
 
@@ -20,6 +22,7 @@ export default function RegisterAdmin() {
   const [email, setEmail] = useState<string>("");
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
+  const db = getFirestore();
   const router = useRouter();
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
@@ -32,6 +35,18 @@ export default function RegisterAdmin() {
         await createUserWithEmailAndPassword(auth, email, companyId);
       await sendEmailVerification(userCredential.user);
 
+      const userDocRef = doc(collection(db, "users"), userCredential.user.uid);
+      await setDoc(userDocRef, {
+        displayName,
+        companyId,
+        representativeName,
+        postalCode,
+        prefecture,
+        city,
+        streetAddress,
+        phoneNumber,
+        email,
+      });
       // Registration successful, redirect to the next page
       router.push("/signin");
     } catch (error) {
@@ -83,28 +98,32 @@ export default function RegisterAdmin() {
               />
             </div>
           </div>
-          <h1>住所</h1>
           <div className={style.address}>
-            <div className={style.content}>
-              <div className={style.innerContent}>
-                <p>郵便番号</p>
-                <input
-                  type="text"
-                  placeholder="000-0000"
-                  value={postalCode}
-                  onChange={(e) => setPostalCode(e.target.value)}
-                />
-              </div>
+            <div>
+              <h1>住所</h1>
             </div>
-            <div className={style.content}>
-              <div className={style.innerContent}>
-                <p>都道府県</p>
-                <input
-                  type="text"
-                  placeholder="大阪府"
-                  value={prefecture}
-                  onChange={(e) => setPrefecture(e.target.value)}
-                />
+            <div className={style.addressInner}>
+              <div className={style.content}>
+                <div className={style.innerContent}>
+                  <p>郵便番号</p>
+                  <input
+                    type="text"
+                    placeholder="000-0000"
+                    value={postalCode}
+                    onChange={(e) => setPostalCode(e.target.value)}
+                  />
+                </div>
+              </div>
+              <div className={style.content}>
+                <div className={style.innerContent}>
+                  <p>都道府県</p>
+                  <input
+                    type="text"
+                    placeholder="大阪府"
+                    value={prefecture}
+                    onChange={(e) => setPrefecture(e.target.value)}
+                  />
+                </div>
               </div>
             </div>
           </div>
