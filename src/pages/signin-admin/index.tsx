@@ -1,5 +1,5 @@
 // Import necessary modules and styles
-import { FormEvent, useState, useEffect } from "react";
+import { FormEvent, useState } from "react";
 import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
 import { FirebaseError } from "@firebase/util";
 import { useRouter } from "next/router";
@@ -7,7 +7,7 @@ import style from "@/styles/form.module.scss";
 import { getDoc, doc, getFirestore } from "firebase/firestore/lite";
 import Link from "next/link";
 
-export default function Signin() {
+export default function SigninAdmin() {
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [show, setShow] = useState(false);
