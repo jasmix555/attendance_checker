@@ -1,38 +1,28 @@
-// Assuming initializeFirebaseApp returns a Promise
-import "@/styles/globals.css";
-import type { AppProps } from "next/app";
-import { initializeFirebaseApp } from "@/firebase/config";
-import { AuthProvider } from "@/feature/provider/AuthProvider";
-import { useEffect, useState } from "react";
+import '@/styles/globals.css'
+import { Noto_Sans_JP } from '@next/font/google'
+import type { AppProps } from 'next/app'
+import { Dialog } from 'primereact/dialog'
+import '@/styles/reset.min.css'
 
-function App({ Component, pageProps }: AppProps) {
-  const [isFirebaseInitialized, setFirebaseInitialized] = useState(false);
+import 'primeicons/primeicons.css'
+import 'primereact/resources/primereact.min.css'
+import 'primereact/resources/themes/lara-light-indigo/theme.css'
 
-  useEffect(() => {
-    const initializeApp = async () => {
-      try {
-        await initializeFirebaseApp();
-        setFirebaseInitialized(true);
-      } catch (error) {
-        console.error("Error initializing Firebase:", error);
-      }
-    };
+const notoSansJP = Noto_Sans_JP({
+  weight: '400',
+  subsets: ['latin']
+})
 
-    initializeApp();
-  }, []);
-
-  if (!isFirebaseInitialized) {
-    // You can render a loading spinner or other UI while Firebase is initializing
-    return <div>Loading...</div>;
-  }
-
+export default function App({ Component, pageProps }: AppProps) {
   return (
-    // <ChakraProvider>
-    <AuthProvider>
-      <Component {...pageProps} />
-    </AuthProvider>
-    // </ChakraProvider>
-  );
-}
+    <>
+      <style jsx global>{`
+        html {
+          font-family: ${notoSansJP.style.fontFamily};
+        }
+      `}</style>
 
-export default App;
+      <Component {...pageProps} />
+    </>
+  )
+}
