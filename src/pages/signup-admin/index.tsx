@@ -174,9 +174,8 @@ export default function RegisterAdmin() {
           </div>
         </div>
         <div className={style.submitWrap}>
-          <button type="submit" disabled={isLoading}>
-            {isLoading ? "Loading" : "Sign Up"}
-          </button>
+          <button disabled>戻る</button>
+          <button type="submit">次へ</button>
         </div>
       </form>
     </>
