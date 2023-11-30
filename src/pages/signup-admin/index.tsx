@@ -48,7 +48,7 @@ export default function RegisterAdmin() {
         email,
       });
       // Registration successful, redirect to the next page
-      router.push("/signin");
+      router.push("/signin-admin");
     } catch (error) {
       console.error(error);
     } finally {
