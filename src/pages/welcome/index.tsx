@@ -5,13 +5,17 @@ export default function Welcome() {
   return (
     <>
       <div>Logo</div>
-      <div className="buttons">
-        <div className={style.user}>
+      <div className={style.btnSubWrap}>
+        <div className={style.buttonSub}>
           <Link href={"#"}>従業員ログイン</Link>
         </div>
-        <div className={style.admin}>
-          <Link href={"#"}>管理者新規登録</Link>
-          <Link href={"#"}>管理者ログイン</Link>
+      </div>
+      <div className={style.btnWrap}>
+        <div className={style.button}>
+          <Link href={"/signup-admin"}>管理者新規登録</Link>
+        </div>
+        <div>
+          <Link href={"/signin-admin"}>管理者ログイン</Link>
         </div>
       </div>
     </>
