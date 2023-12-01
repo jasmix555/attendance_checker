@@ -1,9 +1,10 @@
 import Link from "next/link";
 import style from "@/styles/welcome.module.scss";
+import Layout from "@/components/Layout";
 
 export default function Welcome() {
   return (
-    <>
+    <Layout>
       <div>Logo</div>
       <div className={style.btnSubWrap}>
         <div className={style.buttonSub}>
@@ -18,6 +19,6 @@ export default function Welcome() {
           <Link href={"/signin-admin"}>管理者ログイン</Link>
         </div>
       </div>
-    </>
+    </Layout>
   );
 }

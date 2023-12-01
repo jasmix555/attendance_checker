@@ -1,5 +1,6 @@
 import { useState } from "react";
 import style from "@/styles/registration.module.scss";
+import Layout from "@/components/Layout";
 
 type CompanyInfo = {
   company_name: string;
@@ -25,7 +26,7 @@ export default function SignupAdmin(props: CompanyInfo) {
   });
 
   return (
-    <div>
+    <Layout>
       <div className="wrapper">
         <div>会社情報</div>
         <div>
@@ -80,6 +81,6 @@ export default function SignupAdmin(props: CompanyInfo) {
           />
         </div>
       </div>
-    </div>
+    </Layout>
   );
 }

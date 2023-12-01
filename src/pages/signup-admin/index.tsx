@@ -9,6 +9,7 @@ import { useRouter } from "next/router";
 import style from "@/styles/input.module.scss";
 import { AiFillEye, AiFillEyeInvisible } from "react-icons/ai";
 import Link from "next/link";
+import Layout from "@/components/Layout";
 
 export default function Register() {
   const [email, setEmail] = useState<string>("");
@@ -41,7 +42,7 @@ export default function Register() {
   };
 
   return (
-    <>
+    <Layout>
       <div className={style.bodyWrap}>
         <form onSubmit={handleSubmit}>
           <div className={style.contentWrap}>
@@ -85,6 +86,6 @@ export default function Register() {
           </div>
         </form>
       </div>
-    </>
+    </Layout>
   );
 }

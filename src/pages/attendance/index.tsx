@@ -10,6 +10,7 @@ import {
   FaCirclePlay,
   FaRegClock,
 } from "react-icons/fa6";
+import Layout from "@/components/Layout";
 
 const AttendanceChecker = () => {
   const [currentTime, setCurrentTime] = useState<dayjs.Dayjs | null>(null);
@@ -79,7 +80,7 @@ const AttendanceChecker = () => {
   const { icon, text, class: attendanceClass } = getAttendanceState();
 
   return (
-    <>
+    <Layout>
       <div className={`${style.currentState} ${attendanceClass}`}>
         <div className={style.iconState}>{icon}</div>
         <div>
@@ -125,7 +126,7 @@ const AttendanceChecker = () => {
         </button>
       </div>
       <p>Worked Hours: {calculateWorkHours()}</p>
-    </>
+    </Layout>
   );
 };
 
