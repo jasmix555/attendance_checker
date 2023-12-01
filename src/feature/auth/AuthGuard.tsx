@@ -1,16 +1,14 @@
-import { useAuthContext } from "@/feature/provider/AuthProvider";
 import { useRouter } from "next/router";
-import type { ReactNode } from "react";
+import { ReactNode } from "react";
+import { useAuthContext } from "../provider/AuthProvider";
 
-type Props = {
-  children: ReactNode;
-};
+type Props = { children: ReactNode };
 
 export const AuthGuard = ({ children }: Props) => {
-  const { user } = useAuthContext();
+  const { user, loading } = useAuthContext();
   const { push } = useRouter();
 
-  if (typeof user === "undefined") {
+  if (loading) {
     return (
       <div
         style={{

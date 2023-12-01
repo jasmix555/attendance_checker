@@ -10,33 +10,30 @@ import { getAuth, onAuthStateChanged } from "@firebase/auth";
 
 export type GlobalAuthState = {
   user: User | null | undefined;
+  loading: boolean;
 };
 const initialState: GlobalAuthState = {
   user: undefined,
+  loading: true,
 };
 const AuthContext = createContext<GlobalAuthState>(initialState);
 
 type Props = { children: ReactNode };
 
 export const AuthProvider = ({ children }: Props) => {
-  const [user, setUser] = useState<GlobalAuthState>(initialState);
+  const [state, setState] = useState<GlobalAuthState>(initialState);
 
   useEffect(() => {
-    try {
-      const auth = getAuth();
-      return onAuthStateChanged(auth, (user) => {
-        setUser({
-          user,
-        });
+    const auth = getAuth();
+    return onAuthStateChanged(auth, (user) => {
+      setState({
+        user,
+        loading: false,
       });
-    } catch (error) {
-      setUser(initialState);
-      throw error;
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    });
   }, []);
 
-  return <AuthContext.Provider value={user}>{children}</AuthContext.Provider>;
+  return <AuthContext.Provider value={state}>{children}</AuthContext.Provider>;
 };
 
 export const useAuthContext = () => useContext(AuthContext);
