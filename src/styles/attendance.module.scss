@@ -1,0 +1,81 @@
+.currentState {
+  display: flex;
+  gap: 3rem;
+  width: 90%;
+  margin: 0 auto;
+  justify-content: center;
+  align-items: center;
+  padding: 2.4rem 2rem;
+  border-radius: 16px;
+  color: var(--white);
+  background: red;
+  .year {
+    font-size: 2rem;
+    font-weight: 500;
+  }
+  .timeWrap {
+    font-size: 3.2rem;
+    font-weight: 700;
+    display: flex;
+    align-items: end;
+
+    .time {
+      width: 14rem;
+    }
+
+    .timeState {
+      font-size: 1.4rem;
+      font-weight: 500;
+      padding-left: 0.8rem;
+      margin-bottom: 0.8rem;
+    }
+  }
+  .iconState {
+    font-size: 6rem;
+  }
+}
+
+.btnWrap {
+  display: flex;
+  gap: 3rem;
+  justify-content: center;
+  align-items: center;
+  margin-top: 2rem;
+
+  .button {
+    outline: none;
+    border: none;
+    width: 8rem;
+    height: 9.2rem;
+    font-size: 1.2rem;
+    font-weight: 600;
+    border-radius: 16px;
+    color: var(--white);
+    cursor: pointer;
+    transition: all 200ms ease-in-out;
+
+    span {
+      display: flex;
+      font-size: 2.5rem;
+      justify-content: center;
+      align-items: center;
+      margin-bottom: 1rem;
+    }
+
+    &:disabled {
+      opacity: 0.3;
+    }
+  }
+}
+
+.start {
+  background: var(--main);
+}
+
+.break {
+  background: var(--orange);
+}
+
+.end {
+  background: var(--grey);
+}
