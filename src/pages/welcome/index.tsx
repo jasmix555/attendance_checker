@@ -5,7 +5,7 @@ import Layout from "@/components/Layout";
 export default function Welcome() {
   return (
     <Layout>
-      <div>Logo</div>
+      <div className={style.logo}></div>
       <div className={style.btnSubWrap}>
         <div className={style.buttonSub}>
           <Link href={"/signin-user"}>従業員ログイン</Link>
