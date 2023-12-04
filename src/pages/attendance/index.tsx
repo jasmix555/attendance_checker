@@ -102,7 +102,9 @@ const AttendanceChecker = () => {
   return (
     <Layout>
       <Username />
-      <button onClick={handleSignOut}>Sign out</button>
+      <button onClick={handleSignOut} className={style.signOut}>
+        Sign out
+      </button>
       <div className={`${style.currentState} ${attendanceClass}`}>
         <div className={style.iconState}>{icon}</div>
         <div>
