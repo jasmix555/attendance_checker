@@ -92,8 +92,6 @@ const AttendanceChecker = () => {
         const auth = getAuth();
         await signOut(auth);
         // Use your custom Toast component for the logout message
-      } catch (e) {
-        // Handle error as needed
       } finally {
         // Redirect the user to the login page after logout
         router.push("/welcome");
