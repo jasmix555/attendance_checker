@@ -14,15 +14,6 @@ import Layout from "@/components/Layout";
 import Username from "@/components/Username";
 import { getAuth, signOut } from "firebase/auth";
 import { useRouter } from "next/router";
-import { useAuthContext } from "@/feature/provider/AuthProvider";
-import {
-  Firestore,
-  collection,
-  doc,
-  getDoc,
-  getFirestore,
-} from "firebase/firestore";
-import Heading from "@/components/Heading";
 
 const AttendanceChecker = () => {
   const [currentTime, setCurrentTime] = useState<dayjs.Dayjs | null>(null);
@@ -112,7 +103,7 @@ const AttendanceChecker = () => {
 
   return (
     <Layout>
-      <Heading />
+      <Username />
       <button onClick={handleSignOut}>Sign out</button>
       <div className={`${style.currentState} ${attendanceClass}`}>
         <div className={style.iconState}>{icon}</div>

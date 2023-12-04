@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
 import { getFirestore, doc, getDoc } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
+import style from "@/styles/username.module.scss";
+import Image from "next/image";
 
 const Username = () => {
   const [employeeName, setEmployeeName] = useState("");
@@ -33,8 +35,12 @@ const Username = () => {
   }, []); // Empty dependency array to run the effect only once when the component mounts
 
   return (
-    <div>
-      <p>{employeeName}</p>
+    <div className={style.wrapper}>
+      <div className={style.content}>
+        <div className={style.logo}></div>
+        <div className={style.system}>勤怠管理</div>
+      </div>
+      <div className={style.name}>{employeeName}さん</div>
     </div>
   );
 };
