@@ -1,6 +1,8 @@
-import { useState } from "react";
+import { FormEvent, useState } from "react";
 import style from "@/styles/registration.module.scss";
 import Layout from "@/components/Layout";
+import { getAuth } from "firebase/auth";
+import { getFirestore, setDoc } from "firebase/firestore";
 
 type CompanyInfo = {
   company_name: string;
@@ -24,9 +26,24 @@ export default function SignupAdmin(props: CompanyInfo) {
     company_tel: "",
     company_email: "",
   });
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setIsLoading(true);
+
+    try {
+      const auth = getAuth();
+      const db = getFirestore();
+      setDoc;
+    } catch {
+    } finally {
+    }
+  };
 
   return (
     <Layout>
+      <form action=""></form>
       <div className="wrapper">
         <div>会社情報</div>
         <div>

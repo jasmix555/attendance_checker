@@ -34,13 +34,8 @@ export default function Register() {
         await createUserWithEmailAndPassword(auth, email, password);
       await sendEmailVerification(userCredential.user);
 
-      // Create a new document in the "admin" collection with the user's ID
-      await setDoc(doc(db, "admin", userCredential.user.uid), {
-        // Add any initial data you want to store for the admin here
-      });
-
       // Redirect all users to the "/register-company" page after registration
-      router.push("/register-company");
+      router.push("/signin-admin");
 
       setEmail("");
       setPassword("");
