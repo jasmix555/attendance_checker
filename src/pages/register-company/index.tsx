@@ -46,7 +46,7 @@ export default function SignupAdmin(props: CompanyInfo) {
 
       const companyInfoRef = collection(db, "companyInfo");
 
-      // Use a specific document ID, or generate one based on your needs
+      // Create a new document in the "companyInfo" collection
       const companyId = auth.currentUser?.uid;
       const companyInfoDocRef = doc(companyInfoRef, companyId);
 
@@ -55,12 +55,11 @@ export default function SignupAdmin(props: CompanyInfo) {
         uid: companyId,
       });
 
-      // Optionally, you can redirect the user to another page after successful registration
-      // Router.push("/success"); // Import Router from 'next/router'
-      router.push("/create-employee");
+      // Redirect to create-employee page with the companyId in the query parameter
+      router.push(`/create-employee?companyId=${companyId}`);
     } catch (error) {
       console.error("Error registering company:", error);
-      // Handle error (e.g., show an error message to the user)
+      // Handle error
     } finally {
       setIsLoading(false);
     }

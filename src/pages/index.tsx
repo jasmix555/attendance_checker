@@ -17,27 +17,40 @@ export default function Home() {
   const router = useRouter();
 
   useEffect(() => {
-    const fetchUserData = async () => {
+    const fetchData = async () => {
       try {
-        if (user) {
-          const db: Firestore = getFirestore();
-          const usersCollection = collection(db, "users");
-          const userDocRef = doc(usersCollection, user.uid);
+        const auth = getAuth();
+        const db = getFirestore();
 
-          const userData = (await getDoc(userDocRef))?.data();
+        // Log the current user object
+        console.log("Current User:", auth.currentUser);
 
-          if (!userData) {
-            // If user data is not found, navigate to the Welcome page
-            router.push("/welcome");
+        // Assuming you have the user ID stored in auth.currentUser.uid
+        const userId = auth.currentUser?.uid;
+
+        if (userId) {
+          // Fetch the companyInfo document for the current user
+          const companyInfoDocRef = doc(db, "companyInfo", userId);
+          const companyInfoDoc = await getDoc(companyInfoDocRef);
+
+          if (companyInfoDoc.exists()) {
+            console.log("CompanyInfo Document ID:", companyInfoDoc.id);
+            console.log("CompanyInfo Data:", companyInfoDoc.data());
+          } else {
+            console.log(
+              "CompanyInfo document does not exist for user:",
+              userId
+            );
           }
+        } else {
+          console.log("User not authenticated");
         }
       } catch (error) {
-        console.error(error);
-        // Handle error as needed
+        console.error("Error fetching companyInfo document:", error);
       }
     };
 
-    fetchUserData();
+    fetchData();
   }, [user, router]);
 
   const handleSignOut = async (e: React.MouseEvent<HTMLButtonElement>) => {

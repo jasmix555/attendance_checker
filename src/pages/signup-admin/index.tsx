@@ -45,12 +45,17 @@ export default function Register() {
       );
 
       const companyAdmins = collection(db, "companyAdmins");
+
+      // Check if existingData exists and use it, otherwise, use an empty object
+      const dataToSet = existingData.exists() ? existingData.data() : {};
+
       await setDoc(doc(companyAdmins, userCredential.user.uid), {
-        ...existingData,
+        ...dataToSet,
         email: userCredential.user.email,
         uid: userCredential.user.uid,
       });
-      // Redirect all users to the "/register-company" page after registration
+
+      // Redirect all users to the "/signin-admin" page after registration
       router.push("/signin-admin");
 
       setEmail("");

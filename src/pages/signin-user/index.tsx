@@ -30,7 +30,7 @@ export default function SignInEmployee() {
       );
 
       // Redirect the user to the dashboard or any other protected page
-      router.push("/dashboard");
+      router.push("/attendance");
     } catch (error) {
       console.error("Error signing in:", error);
       setError("Invalid login credentials. Please try again.");
@@ -71,25 +71,12 @@ export default function SignInEmployee() {
             />
             <label htmlFor="password">パスワード</label>
           </div>
-        </div>
-
-        {/* <div className={style.submitWrap}>
-          <div>
-            <button type="button" onClick={() => router.push("/welcome")}>
-              戻る
-            </button>
-          </div>
-          <div>
+          <div className={style.submitWrap}>
             <button type="submit" disabled={isLoading}>
-              {isLoading ? "ログイン中..." : "ログイン"}
+              {isLoading ? "作成中" : "作成"}
             </button>
+            <Link href={"/welcome"}>戻る</Link>
           </div>
-        </div> */}
-        <div className={style.submitWrap}>
-          <button type="submit" disabled={isLoading}>
-            {isLoading ? "作成中" : "作成"}
-          </button>
-          <Link href={"/welcome"}>戻る</Link>
         </div>
       </form>
     </Layout>
