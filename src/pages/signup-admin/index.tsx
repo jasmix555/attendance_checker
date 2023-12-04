@@ -66,7 +66,7 @@ export default function Register() {
     <Layout>
       <form onSubmit={handleSubmit} className={style.form} autoComplete="off">
         <div className={style.wrapper}>
-          <h2>新規登録</h2>
+          <div className={style.header}>新規登録</div>
 
           <div className={style.inputWrapper}>
             <input

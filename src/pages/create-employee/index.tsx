@@ -30,7 +30,7 @@ export default function CreateEmployeeAccount() {
       );
 
       // Optionally, you can redirect the user to another page after successful registration
-      router.push("/dashboard");
+      router.push("/");
     } catch (error) {
       console.error("Error creating employee account:", error);
       // Handle error (e.g., show an error message to the user)

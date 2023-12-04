@@ -60,7 +60,7 @@ export default function Signin() {
     <Layout>
       <form onSubmit={handleSubmit} className={style.form} autoComplete="off">
         <div className={style.wrapper}>
-          <h2>ログイン</h2>
+          <div className={style.header}>ログイン</div>
           <div className={style.inputWrapper}>
             <label htmlFor="email">メール</label>
             <input

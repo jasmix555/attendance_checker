@@ -1,54 +1,39 @@
-// Import necessary modules and styles
-import { FormEvent, useState, useEffect } from "react";
-import { AiFillEye, AiFillEyeInvisible } from "react-icons/ai";
+// pages/signin-employee.tsx
+import { FormEvent, useState } from "react";
+import style from "@/styles/input.module.scss";
+import Layout from "@/components/Layout";
 import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
 import { useRouter } from "next/router";
-import style from "@/styles/input.module.scss";
-import { getDoc, doc, getFirestore } from "firebase/firestore/lite";
-import Layout from "@/components/Layout";
 import Link from "next/link";
 
-export default function Signin() {
-  const [email, setEmail] = useState<string>("");
-  const [password, setPassword] = useState<string>("");
-  const [show, setShow] = useState(false);
-  const handleClick = () => setShow(!show);
+export default function SignInEmployee() {
+  const router = useRouter();
+  const [signInInfo, setSignInInfo] = useState({
+    login_id: "",
+    password: "",
+  });
+
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const { push } = useRouter();
-  const auth = getAuth();
+  const [error, setError] = useState<string | null>(null);
 
-  // Check if the user's profile setup is complete
-  const checkProfileSetup = async () => {
-    const user = auth.currentUser;
-    if (user) {
-      const db = getFirestore();
-      const userDocRef = doc(db, "employee", user.uid);
-
-      try {
-        const userDocSnapshot = await getDoc(userDocRef);
-        userDocSnapshot.exists() ? push("/attendance") : push("/welcome");
-      } catch (error) {
-        console.error("Error checking profile setup:", error);
-      }
-    }
-  };
-
-  useEffect(() => {
-    // Check the profile setup when the component loads
-    checkProfileSetup();
-  }, []);
-
-  // Handle form submission
-  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+  const handleSignIn = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsLoading(true);
 
     try {
-      await signInWithEmailAndPassword(auth, email, password);
-      setEmail("");
-      setPassword("");
-      checkProfileSetup();
-    } catch (e) {
+      const auth = getAuth();
+      // Use the sign in function from Firebase Authentication
+      await signInWithEmailAndPassword(
+        auth,
+        signInInfo.login_id,
+        signInInfo.password
+      );
+
+      // Redirect the user to the dashboard or any other protected page
+      router.push("/dashboard");
+    } catch (error) {
+      console.error("Error signing in:", error);
+      setError("Invalid login credentials. Please try again.");
     } finally {
       setIsLoading(false);
     }
@@ -56,43 +41,55 @@ export default function Signin() {
 
   return (
     <Layout>
-      <form onSubmit={handleSubmit} className={style.form} autoComplete="off">
+      <form onSubmit={handleSignIn} className={style.form}>
         <div className={style.wrapper}>
-          <h2>ログイン</h2>
+          <div className={style.header}>従業員ログイン</div>
+          {error && <div className={style.error}>{error}</div>}
           <div className={style.inputWrapper}>
-            <label htmlFor="email">メール</label>
             <input
-              className={style.input}
-              type="email"
-              name="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              type="text"
+              value={signInInfo.login_id}
+              name="login_id"
+              id="login_id"
+              onChange={(e) =>
+                setSignInInfo({ ...signInInfo, login_id: e.target.value })
+              }
+              placeholder="従業員IDを入力"
             />
+            <label htmlFor="login_id">ログインID</label>
           </div>
           <div className={style.inputWrapper}>
+            <input
+              type="password"
+              value={signInInfo.password}
+              name="password"
+              id="password"
+              onChange={(e) =>
+                setSignInInfo({ ...signInInfo, password: e.target.value })
+              }
+              placeholder="パスワードを入力"
+            />
             <label htmlFor="password">パスワード</label>
-            <div className={style.iconVis}>
-              <input
-                className={style.input}
-                type={show ? "text" : "password"}
-                name="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-              />
-              <i
-                onClick={handleClick}
-                title={show ? "Hide Password" : "Show Password"}
-              >
-                {show ? <AiFillEyeInvisible /> : <AiFillEye />}
-              </i>
-            </div>
           </div>
-          <div className={style.submitWrap}>
+        </div>
+
+        {/* <div className={style.submitWrap}>
+          <div>
+            <button type="button" onClick={() => router.push("/welcome")}>
+              戻る
+            </button>
+          </div>
+          <div>
             <button type="submit" disabled={isLoading}>
               {isLoading ? "ログイン中..." : "ログイン"}
             </button>
-            <Link href={"/welcome"}>戻る</Link>
           </div>
+        </div> */}
+        <div className={style.submitWrap}>
+          <button type="submit" disabled={isLoading}>
+            {isLoading ? "作成中" : "作成"}
+          </button>
+          <Link href={"/welcome"}>戻る</Link>
         </div>
       </form>
     </Layout>
