@@ -2,30 +2,38 @@ import { FormEvent, useState } from "react";
 import style from "@/styles/registration.module.scss";
 import Layout from "@/components/Layout";
 import { getAuth } from "firebase/auth";
-import { getFirestore, setDoc } from "firebase/firestore";
+import { collection, doc, getFirestore, setDoc } from "firebase/firestore";
+import Link from "next/link";
+import { useRouter } from "next/router";
 
 type CompanyInfo = {
   company_name: string;
   company_id: string;
   company_pw: string;
   supervisor?: string;
-  company_address?: string;
   company_postal?: string;
+  company_prefecture?: string;
+  company_city?: string;
+  company_address_detail?: string;
   company_tel?: string;
   company_email?: string;
 };
 
 export default function SignupAdmin(props: CompanyInfo) {
+  const router = useRouter();
   const [companyInfo, setCompanyInfo] = useState<CompanyInfo>({
     company_name: "",
     company_id: "",
     company_pw: "",
     supervisor: "",
-    company_address: "",
     company_postal: "",
+    company_prefecture: "",
+    company_city: "",
+    company_address_detail: "",
     company_tel: "",
     company_email: "",
   });
+
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
@@ -35,69 +43,201 @@ export default function SignupAdmin(props: CompanyInfo) {
     try {
       const auth = getAuth();
       const db = getFirestore();
-      setDoc;
-    } catch {
+
+      const companyInfoRef = collection(db, "companyInfo");
+
+      // Use a specific document ID, or generate one based on your needs
+      const companyId = auth.currentUser?.uid;
+      const companyInfoDocRef = doc(companyInfoRef, companyId);
+
+      await setDoc(companyInfoDocRef, {
+        ...companyInfo,
+        uid: companyId,
+      });
+
+      // Optionally, you can redirect the user to another page after successful registration
+      // Router.push("/success"); // Import Router from 'next/router'
+      router.push("/create-employee");
+    } catch (error) {
+      console.error("Error registering company:", error);
+      // Handle error (e.g., show an error message to the user)
     } finally {
+      setIsLoading(false);
     }
   };
 
   return (
     <Layout>
-      <form action=""></form>
-      <div className="wrapper">
-        <div>会社情報</div>
-        <div>
-          <label htmlFor="company_name">会社名</label>
-          <input type="text" value={""} name="company_name" id="company_name" />
+      <form onSubmit={handleSubmit} className={style.form}>
+        <div className={style.wrapper}>
+          <div className={style.header}>会社情報</div>
+          <div className={style.content}>
+            <label htmlFor="company_name">会社名</label>
+            <input
+              type="text"
+              value={companyInfo.company_name}
+              name="company_name"
+              id="company_name"
+              onChange={(e) =>
+                setCompanyInfo({ ...companyInfo, company_name: e.target.value })
+              }
+              placeholder="例: 株式会社〇〇"
+            />
+          </div>
+          <div className={style.content}>
+            <label htmlFor="company_id">会社ID</label>
+            <input
+              type="text"
+              value={companyInfo.company_id}
+              name="company_id"
+              id="company_id"
+              onChange={(e) =>
+                setCompanyInfo({ ...companyInfo, company_id: e.target.value })
+              }
+              placeholder="例: abc123"
+            />
+          </div>
+          {/* <div className={style.content}>
+            <label htmlFor="company_pw">パスワード</label>
+            <input
+              type="text"
+              value={companyInfo.company_pw}
+              name="company_pw"
+              id="company_pw"
+              onChange={(e) =>
+                setCompanyInfo({ ...companyInfo, company_pw: e.target.value })
+              }
+            />
+          </div> */}
         </div>
-        <div>
-          <label htmlFor="company_id">会社ID</label>
-          <input type="text" value={""} name="company_id" id="company_id" />
+
+        <div className={style.wrapper}>
+          <div className={style.header}>会社連絡先</div>
+          <div className={style.content}>
+            <label htmlFor="supervisor">代表者名</label>
+            <input
+              type="text"
+              value={companyInfo.supervisor}
+              name="supervisor"
+              id="supervisor"
+              onChange={(e) =>
+                setCompanyInfo({ ...companyInfo, supervisor: e.target.value })
+              }
+              placeholder="例: 山田太郎"
+            />
+          </div>
+          <div className={style.headerSub}>住所</div>
+          <div className={style.flex}>
+            <div className={style.content}>
+              <label htmlFor="company_postal">郵便番号</label>
+              <input
+                type="text"
+                value={companyInfo.company_postal}
+                name="company_postal"
+                id="company_postal"
+                onChange={(e) =>
+                  setCompanyInfo({
+                    ...companyInfo,
+                    company_postal: e.target.value,
+                  })
+                }
+                placeholder="例: 530-0015"
+              />
+            </div>
+            <div className={style.content}>
+              <label htmlFor="company_prefecture">都道府県</label>
+              <input
+                type="text"
+                value={companyInfo.company_prefecture}
+                name="company_prefecture"
+                id="company_prefecture"
+                onChange={(e) =>
+                  setCompanyInfo({
+                    ...companyInfo,
+                    company_prefecture: e.target.value,
+                  })
+                }
+                placeholder="例: 大阪府"
+              />
+            </div>
+          </div>
+          <div className={style.content}>
+            <label htmlFor="company_city">市区町村</label>
+            <input
+              type="text"
+              value={companyInfo.company_city}
+              name="company_city"
+              id="company_city"
+              onChange={(e) =>
+                setCompanyInfo({
+                  ...companyInfo,
+                  company_city: e.target.value,
+                })
+              }
+              placeholder="例: 北区中崎西"
+            />
+          </div>
+          <div className={style.content}>
+            <label htmlFor="company_address_detail">番地・建物名など</label>
+            <input
+              type="text"
+              value={companyInfo.company_address_detail}
+              name="company_address_detail"
+              id="company_address_detail"
+              onChange={(e) =>
+                setCompanyInfo({
+                  ...companyInfo,
+                  company_address_detail: e.target.value,
+                })
+              }
+              placeholder="例: 2-3-15 ECCコンピュータ専門学校 2号館"
+            />
+          </div>
+
+          <div className={style.content}>
+            <label htmlFor="company_tel">電話番号</label>
+            <input
+              type="text"
+              value={companyInfo.company_tel}
+              name="company_tel"
+              id="company_tel"
+              onChange={(e) =>
+                setCompanyInfo({ ...companyInfo, company_tel: e.target.value })
+              }
+              placeholder="例: 03-1234-5678"
+            />
+          </div>
+          <div className={style.content}>
+            <label htmlFor="company_email">メールアドレス</label>
+            <input
+              type="text"
+              value={companyInfo.company_email}
+              name="company_email"
+              id="company_email"
+              onChange={(e) =>
+                setCompanyInfo({
+                  ...companyInfo,
+                  company_email: e.target.value,
+                })
+              }
+              placeholder="例: info@example.com"
+            />
+          </div>
         </div>
-        <div>
-          <label htmlFor="company_pw">パスワード</label>
-          <input type="text" value={""} name="company_pw" id="company_pw" />
+
+        <div className={style.submitWrap}>
+          <div>
+            <Link href={"/welcome"} aria-disabled>
+              戻る
+            </Link>
+          </div>
+          <div>
+            <button type="submit" disabled={isLoading}>
+              {isLoading ? "登録中..." : "登録"}
+            </button>
+          </div>
         </div>
-      </div>
-      <div className="wrapper">
-        <div>会社連絡先</div>
-        <div>
-          <label htmlFor="supervisor">代表者名</label>
-          <input type="text" value={""} name="supervisor" id="supervisor" />
-        </div>
-        <div className={style.address}></div>
-        <div>
-          <label htmlFor="company_address">住所</label>
-          <input
-            type="text"
-            value={""}
-            name="company_address"
-            id="company_address"
-          />
-        </div>
-        <div>
-          <label htmlFor="company_postal">郵便番号</label>
-          <input
-            type="text"
-            value={""}
-            name="company_postal"
-            id="company_postal"
-          />
-        </div>
-        <div>
-          <label htmlFor="company_tel">電話番号</label>
-          <input type="text" value={""} name="company_tel" id="company_tel" />
-        </div>
-        <div>
-          <label htmlFor="company_email">メールアドレス</label>
-          <input
-            type="text"
-            value={""}
-            name="company_email"
-            id="company_email"
-          />
-        </div>
-      </div>
+      </form>
     </Layout>
   );
 }

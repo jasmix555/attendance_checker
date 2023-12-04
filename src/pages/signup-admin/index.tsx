@@ -10,7 +10,13 @@ import style from "@/styles/input.module.scss";
 import { AiFillEye, AiFillEyeInvisible } from "react-icons/ai";
 import Link from "next/link";
 import Layout from "@/components/Layout";
-import { getFirestore, doc, setDoc } from "firebase/firestore";
+import {
+  getFirestore,
+  doc,
+  setDoc,
+  collection,
+  getDoc,
+} from "firebase/firestore";
 
 export default function Register() {
   const [email, setEmail] = useState<string>("");
@@ -34,6 +40,16 @@ export default function Register() {
         await createUserWithEmailAndPassword(auth, email, password);
       await sendEmailVerification(userCredential.user);
 
+      const existingData = await getDoc(
+        doc(db, "companyAdmins", userCredential.user.uid)
+      );
+
+      const companyAdmins = collection(db, "companyAdmins");
+      await setDoc(doc(companyAdmins, userCredential.user.uid), {
+        ...existingData,
+        email: userCredential.user.email,
+        uid: userCredential.user.uid,
+      });
       // Redirect all users to the "/register-company" page after registration
       router.push("/signin-admin");
 
