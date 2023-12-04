@@ -2,7 +2,15 @@ import { FormEvent, useState } from "react";
 import style from "@/styles/registration.module.scss";
 import Layout from "@/components/Layout";
 import { getAuth } from "firebase/auth";
-import { collection, doc, getFirestore, setDoc } from "firebase/firestore";
+import { useEffect } from "react";
+import {
+  collection,
+  doc,
+  getDoc,
+  getFirestore,
+  setDoc,
+  updateDoc,
+} from "firebase/firestore";
 import Link from "next/link";
 import { useRouter } from "next/router";
 
@@ -33,7 +41,7 @@ export default function SignupAdmin(props: CompanyInfo) {
     company_tel: "",
     company_email: "",
   });
-
+  const prevPath = sessionStorage.getItem("prevPath");
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
@@ -50,10 +58,21 @@ export default function SignupAdmin(props: CompanyInfo) {
       const companyId = auth.currentUser?.uid;
       const companyInfoDocRef = doc(companyInfoRef, companyId);
 
-      await setDoc(companyInfoDocRef, {
-        ...companyInfo,
-        uid: companyId,
-      });
+      const companyInfoDoc = await getDoc(companyInfoDocRef);
+
+      if (companyInfoDoc.exists()) {
+        await updateDoc(companyInfoDocRef, {
+          ...companyInfo,
+          uid: companyId,
+        });
+      } else {
+        await setDoc(companyInfoDocRef, {
+          ...companyInfo,
+          uid: companyId,
+        });
+      }
+
+      sessionStorage.setItem("prevPath", router.pathname);
 
       // Redirect to create-employee page with the companyId in the query parameter
       router.push(`/create-employee?companyId=${companyId}`);
@@ -64,6 +83,22 @@ export default function SignupAdmin(props: CompanyInfo) {
       setIsLoading(false);
     }
   };
+
+  useEffect(() => {
+    const fetchCompanyInfo = async () => {
+      const db = getFirestore();
+      const companyInfoRef = collection(db, "companyInfo");
+      const companyId = getAuth().currentUser?.uid;
+      const companyInfoDocRef = doc(companyInfoRef, companyId);
+      const companyInfoDoc = await getDoc(companyInfoDocRef);
+
+      if (companyInfoDoc.exists()) {
+        setCompanyInfo(companyInfoDoc.data() as CompanyInfo);
+      }
+    };
+
+    fetchCompanyInfo();
+  }, []);
 
   return (
     <Layout>
@@ -96,18 +131,6 @@ export default function SignupAdmin(props: CompanyInfo) {
               placeholder="例: abc123"
             />
           </div>
-          {/* <div className={style.content}>
-            <label htmlFor="company_pw">パスワード</label>
-            <input
-              type="text"
-              value={companyInfo.company_pw}
-              name="company_pw"
-              id="company_pw"
-              onChange={(e) =>
-                setCompanyInfo({ ...companyInfo, company_pw: e.target.value })
-              }
-            />
-          </div> */}
         </div>
 
         <div className={style.wrapper}>

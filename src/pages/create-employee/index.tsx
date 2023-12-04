@@ -1,5 +1,4 @@
-// pages/create-employee-account.tsx
-import { FormEvent, useState } from "react";
+import { FormEvent, useState, useEffect } from "react";
 import style from "@/styles/registration.module.scss";
 import Layout from "@/components/Layout";
 import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
@@ -8,15 +7,23 @@ import { collection, doc, getFirestore, setDoc } from "firebase/firestore";
 
 export default function CreateEmployeeAccount() {
   const router = useRouter();
+  const prevPath = sessionStorage.getItem("prevPath");
   const [employeeInfo, setEmployeeInfo] = useState({
     employee_name: "",
     login_id: "",
     password: "",
-    email: "",
+    companyId: "",
   });
 
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const { companyId } = router.query; // Get companyId from the query parameter
+
+  useEffect(() => {
+    // Check if companyId is a string before updating the state
+    if (typeof companyId === "string") {
+      setEmployeeInfo((prevInfo) => ({ ...prevInfo, companyId: companyId }));
+    }
+  }, [companyId]);
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -29,17 +36,18 @@ export default function CreateEmployeeAccount() {
       const employeeInfoRef = collection(db, "employeeInfo");
 
       // Use the create user function from Firebase Authentication
-      await createUserWithEmailAndPassword(
+      const userCredential = await createUserWithEmailAndPassword(
         auth,
-        employeeInfo.email,
+        employeeInfo.login_id,
         employeeInfo.password
       );
 
       // Save additional employee information in the "employeeInfo" collection
-      const employeeDocRef = doc(employeeInfoRef, auth.currentUser?.uid);
+      const employeeDocRef = doc(employeeInfoRef, userCredential.user.uid);
       await setDoc(employeeDocRef, {
         ...employeeInfo,
-        uid: auth.currentUser?.uid,
+        uid: userCredential.user.uid,
+        companyId: companyId, // Save the companyId
       });
 
       // Optionally, you can redirect the user to another page after successful registration
@@ -57,6 +65,16 @@ export default function CreateEmployeeAccount() {
       <form onSubmit={handleSubmit} className={style.form}>
         <div className={style.wrapper}>
           <div className={style.header}>従業員アカウント作成</div>
+          <div className={style.content}>
+            <label htmlFor="company_id">会社ID</label>
+            <input
+              type="text"
+              value={employeeInfo.companyId}
+              name="company_id"
+              id="company_id"
+              readOnly
+            />
+          </div>
           <div className={style.content}>
             <label htmlFor="employee_name">従業員名</label>
             <input
@@ -99,26 +117,20 @@ export default function CreateEmployeeAccount() {
               placeholder="例: ******"
             />
           </div>
-          <div className={style.content}>
-            <label htmlFor="email">Eメール</label>
-            <input
-              type="email"
-              value={employeeInfo.email}
-              name="email"
-              id="email"
-              onChange={(e) =>
-                setEmployeeInfo({ ...employeeInfo, email: e.target.value })
-              }
-              placeholder="例: employee@example.com"
-            />
-          </div>
         </div>
-
         <div className={style.submitWrap}>
           <div>
             <button
               type="button"
-              onClick={() => router.push("/create-company")}
+              onClick={() => {
+                if (typeof prevPath === "string") {
+                  router.push(prevPath); // Navigate back to the previous page
+                } else {
+                  // Handle the case when prevPath is null
+                  // For example, navigate to a default page
+                  router.push("/");
+                }
+              }}
             >
               戻る
             </button>

@@ -22,13 +22,11 @@ export default function Signin() {
     const user = auth.currentUser;
     if (user) {
       const db = getFirestore();
-      const userDocRef = doc(db, "companies", user.uid);
+      const userDocRef = doc(db, "companyInfo", user.uid);
 
       try {
         const userDocSnapshot = await getDoc(userDocRef);
-        userDocSnapshot.exists()
-          ? push("/attendance")
-          : push("/register-company");
+        userDocSnapshot.exists() ? push("/") : push("/register-company");
       } catch (error) {
         console.error("Error checking profile setup:", error);
       }

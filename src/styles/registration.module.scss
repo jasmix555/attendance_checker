@@ -39,6 +39,11 @@
           outline: none;
           border-bottom: solid 1px var(--main);
         }
+        &:disabled,
+        &:read-only {
+          background: #cfcfcf;
+          // color: var(--white);
+        }
       }
     }
   }
