@@ -8,7 +8,7 @@ export default function Welcome() {
       <div>Logo</div>
       <div className={style.btnSubWrap}>
         <div className={style.buttonSub}>
-          <Link href={"#"}>従業員ログイン</Link>
+          <Link href={"/signin-user"}>従業員ログイン</Link>
         </div>
       </div>
       <div className={style.btnWrap}>
