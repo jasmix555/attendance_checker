@@ -73,7 +73,7 @@ export default function SignInEmployee() {
           </div>
           <div className={style.submitWrap}>
             <button type="submit" disabled={isLoading}>
-              {isLoading ? "作成中" : "作成"}
+              {isLoading ? "サインイン中..." : "サインイン"}
             </button>
             <Link href={"/welcome"}>戻る</Link>
           </div>
