@@ -12,8 +12,8 @@ import {
 } from "react-icons/fa6";
 import Layout from "@/components/Layout";
 import Username from "@/components/Username";
-import { getAuth, signOut } from "firebase/auth";
 import { useRouter } from "next/router";
+import Signout from "@/components/Signout";
 
 const AttendanceChecker = () => {
   const [currentTime, setCurrentTime] = useState<dayjs.Dayjs | null>(null);
@@ -83,28 +83,10 @@ const AttendanceChecker = () => {
 
   const { icon, text, class: attendanceClass } = getAttendanceState();
 
-  const handleSignOut = async (e: React.MouseEvent<HTMLButtonElement>) => {
-    e.preventDefault(); // Prevent the default behavior of the button
-
-    // Add a delay of 2 seconds (2000 milliseconds) before signing out
-    setTimeout(async () => {
-      try {
-        const auth = getAuth();
-        await signOut(auth);
-        // Use your custom Toast component for the logout message
-      } finally {
-        // Redirect the user to the login page after logout
-        router.push("/welcome");
-      }
-    }, 2000); // Adjust the delay duration as needed
-  };
-
   return (
     <Layout>
       <Username />
-      <button onClick={handleSignOut} className={style.signOut}>
-        Sign out
-      </button>
+      <Signout />
       <div className={`${style.currentState} ${attendanceClass}`}>
         <div className={style.iconState}>{icon}</div>
         <div>

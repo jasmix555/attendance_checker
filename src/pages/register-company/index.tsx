@@ -119,7 +119,7 @@ export default function SignupAdmin(props: CompanyInfo) {
             />
           </div>
           <div className={style.content}>
-            <label htmlFor="company_id">会社ID</label>
+            <label htmlFor="company_id">管理者</label>
             <input
               type="text"
               value={companyInfo.company_id}
@@ -128,7 +128,7 @@ export default function SignupAdmin(props: CompanyInfo) {
               onChange={(e) =>
                 setCompanyInfo({ ...companyInfo, company_id: e.target.value })
               }
-              placeholder="例: abc123"
+              placeholder="例: 山田 太郎"
             />
           </div>
         </div>
@@ -145,7 +145,7 @@ export default function SignupAdmin(props: CompanyInfo) {
               onChange={(e) =>
                 setCompanyInfo({ ...companyInfo, supervisor: e.target.value })
               }
-              placeholder="例: 山田太郎"
+              placeholder="例: 山田 太郎"
             />
           </div>
           <div className={style.headerSub}>住所</div>

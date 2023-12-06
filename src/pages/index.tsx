@@ -8,6 +8,7 @@ import { getAuth, signOut } from "firebase/auth";
 import style from "@/styles/index.module.scss";
 import Link from "next/link";
 import Layout from "@/components/Layout";
+import Signout from "@/components/Signout";
 
 export default function Home() {
   const { user } = useAuthContext();
@@ -35,7 +36,6 @@ export default function Home() {
           if (companyInfoDoc.exists()) {
             const data = companyInfoDoc.data();
             const companyName = data.company_name;
-            const adminName = data.company_name;
             // console.log("Company Name:", companyName);
 
             // Update the companyName state variable
@@ -58,24 +58,6 @@ export default function Home() {
     fetchData();
   }, [user, router]);
 
-  const handleSignOut = async (e: React.MouseEvent<HTMLButtonElement>) => {
-    e.preventDefault(); // Prevent the default behavior of the button
-
-    // Add a delay of 2 seconds (2000 milliseconds) before signing out
-    setTimeout(async () => {
-      try {
-        const auth = getAuth();
-        await signOut(auth);
-        // Use your custom Toast component for the logout message
-      } catch (e) {
-        // Handle error as needed
-      } finally {
-        // Redirect the user to the login page after logout
-        router.push("/welcome");
-      }
-    }, 2000); // Adjust the delay duration as needed
-  };
-
   return (
     <Layout>
       <AuthGuard>
@@ -83,12 +65,9 @@ export default function Home() {
           <>
             <div>Home</div>
             <div>
-              <p>{adminName}</p>
-            </div>
-            <div>
               <p>{companyName}</p>
             </div>
-            {/* change company info*/}
+
             <div>
               <Link href="/register-company">Change Company info</Link>
             </div>
@@ -106,7 +85,7 @@ export default function Home() {
                 従業員アカウント作成
               </button>
             </div>
-            <button onClick={handleSignOut}>Sign out</button>
+            <Signout />
           </>
         ) : (
           <Welcome />

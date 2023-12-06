@@ -1,0 +1,12 @@
+.btnWrap {
+  position: absolute;
+  bottom: 10rem;
+  left: 50%;
+  transform: translateX(-50%);
+  button {
+    padding: 0.4rem 1.8rem;
+    font-size: 1.6rem;
+    border-radius: 10px;
+    border: solid 1px tomato;
+  }
+}
