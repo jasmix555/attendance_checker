@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import { getFirestore, doc, getDoc } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
 import style from "@/styles/username.module.scss";
-import Image from "next/image";
 
 const Username = () => {
   const [employeeName, setEmployeeName] = useState("");

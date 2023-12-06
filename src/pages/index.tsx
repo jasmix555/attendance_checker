@@ -13,6 +13,7 @@ export default function Home() {
   const { user } = useAuthContext();
   const router = useRouter();
   const [companyName, setCompanyName] = useState<string>("");
+  const [adminName, setAdminName] = useState<string>("");
 
   useEffect(() => {
     const fetchData = async () => {
@@ -34,10 +35,12 @@ export default function Home() {
           if (companyInfoDoc.exists()) {
             const data = companyInfoDoc.data();
             const companyName = data.company_name;
+            const adminName = data.company_name;
             // console.log("Company Name:", companyName);
 
             // Update the companyName state variable
             setCompanyName(companyName);
+            setAdminName(adminName);
           } else {
             console.log(
               "CompanyInfo document does not exist for user:",
@@ -80,7 +83,14 @@ export default function Home() {
           <>
             <div>Home</div>
             <div>
+              <p>{adminName}</p>
+            </div>
+            <div>
               <p>{companyName}</p>
+            </div>
+            {/* change company info*/}
+            <div>
+              <Link href="/register-company">Change Company info</Link>
             </div>
 
             <div className={style.wrapper}>
