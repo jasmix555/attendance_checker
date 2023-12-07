@@ -250,13 +250,7 @@ export default function RegisterCompany(props: CompanyInfo) {
             <button
               type="button"
               onClick={() => {
-                if (typeof prevPath === "string") {
-                  router.push(prevPath); // Navigate back to the previous page
-                } else {
-                  // Handle the case when prevPath is null
-                  // For example, navigate to a default page
-                  router.push("/");
-                }
+                router.push("/");
               }}
             >
               戻る

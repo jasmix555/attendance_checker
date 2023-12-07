@@ -4,6 +4,7 @@ import {
   createUserWithEmailAndPassword,
   UserCredential,
   sendEmailVerification,
+  AuthError,
 } from "firebase/auth";
 import { useRouter } from "next/router";
 import style from "@/styles/input.module.scss";
@@ -18,11 +19,16 @@ import {
   getDoc,
 } from "firebase/firestore";
 
+const EMAIL_ALREADY_IN_USE = "auth/email-already-in-use";
+const WEAK_PASSWORD = "auth/weak-password";
+
 export default function Register() {
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [show, setShow] = useState(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [emailError, setEmailError] = useState<string>("");
+  const [passwordError, setPasswordError] = useState<string>("");
 
   const router = useRouter();
 
@@ -33,6 +39,9 @@ export default function Register() {
     setIsLoading(true);
 
     try {
+      setEmailError("");
+      setPasswordError("");
+
       const auth = getAuth();
       const db = getFirestore();
 
@@ -60,8 +69,18 @@ export default function Register() {
 
       setEmail("");
       setPassword("");
-    } catch (error) {
+    } catch (error: unknown) {
       console.error(error);
+
+      if (error && typeof error === "object" && "code" in error) {
+        const errorCode = (error as { code: string }).code;
+
+        if (errorCode === EMAIL_ALREADY_IN_USE) {
+          setEmailError("このメールアドレスは既に使用されています");
+        } else if (errorCode === WEAK_PASSWORD) {
+          setPasswordError("パスワードが弱すぎます");
+        }
+      }
     } finally {
       setIsLoading(false);
     }
@@ -84,6 +103,7 @@ export default function Register() {
               required
             />
             <label htmlFor="email">メール</label>
+            {emailError && <p className={style.error}>{emailError}</p>}
           </div>
           <div className={style.inputWrapper}>
             <input
@@ -99,6 +119,7 @@ export default function Register() {
             <i onClick={handleClick}>
               {show ? <AiFillEyeInvisible /> : <AiFillEye />}
             </i>
+            {passwordError && <p className={style.error}>{passwordError}</p>}
           </div>
           <div className={style.submitWrap}>
             <button type="submit" disabled={isLoading}>

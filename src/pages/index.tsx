@@ -9,7 +9,6 @@ import style from "@/styles/index.module.scss";
 import Link from "next/link";
 import Layout from "@/components/Layout";
 import Signout from "@/components/Signout";
-import Username from "@/components/Username";
 
 export default function Home() {
   const { user } = useAuthContext();

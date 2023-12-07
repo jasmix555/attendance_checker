@@ -2,6 +2,7 @@
 import { FormEvent, useState } from "react";
 import style from "@/styles/input.module.scss";
 import Layout from "@/components/Layout";
+import { AiFillEye, AiFillEyeInvisible } from "react-icons/ai";
 import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
 import { useRouter } from "next/router";
 import Link from "next/link";
@@ -12,9 +13,12 @@ export default function SignInEmployee() {
     login_id: "",
     password: "",
   });
+  const [show, setShow] = useState(false);
 
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
+
+  const handleClick = () => setShow(!show);
 
   const handleSignIn = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -60,7 +64,7 @@ export default function SignInEmployee() {
           </div>
           <div className={style.inputWrapper}>
             <input
-              type="password"
+              type={show ? "text" : "password"}
               value={signInInfo.password}
               name="password"
               id="password"
@@ -70,6 +74,9 @@ export default function SignInEmployee() {
               placeholder="パスワードを入力"
             />
             <label htmlFor="password">パスワード</label>
+            <i onClick={handleClick}>
+              {show ? <AiFillEyeInvisible /> : <AiFillEye />}
+            </i>
           </div>
           <div className={style.submitWrap}>
             <button type="submit" disabled={isLoading}>
