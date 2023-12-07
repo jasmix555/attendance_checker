@@ -1,3 +1,10 @@
+.wrapper {
+  padding-top: 0.6rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.4rem;
+}
+
 .currentState {
   display: flex;
   gap: 3rem;
@@ -48,14 +55,15 @@
   gap: 3rem;
   justify-content: center;
   align-items: center;
-  margin-top: 2rem;
+  background: #efefef;
+  padding: 1.4rem 0;
 
   .button {
     outline: none;
     border: none;
-    width: 8rem;
-    height: 9.2rem;
-    font-size: 1.2rem;
+    width: 9rem;
+    height: 10rem;
+    font-size: 1.6rem;
     font-weight: 600;
     border-radius: 16px;
     color: var(--white);
@@ -65,7 +73,7 @@
     span {
       display: flex;
       justify-content: flex-end;
-      font-size: 2.5rem;
+      font-size: 3rem;
       justify-content: center;
       align-items: center;
       margin-bottom: 1rem;
@@ -74,6 +82,46 @@
     &:disabled {
       opacity: 0.3;
     }
+  }
+}
+
+.holidayWrap {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4.2rem;
+  .holiday {
+    background: #228616;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 1.4rem 1rem;
+    width: 14rem;
+    height: 12rem;
+    border-radius: 10px;
+    .icon {
+      font-size: 2rem;
+    }
+    .fontL {
+      font-weight: 600;
+    }
+    span {
+      font-size: 1.2rem;
+      color: var(--white);
+    }
+  }
+}
+
+.dashboard {
+  h2 {
+    margin: 0 auto;
+    width: 94%;
+    padding: 0.2rem 2rem;
+    border-bottom: 1px solid var(--grey);
+    font-size: 1.6rem;
+    font-weight: 400;
   }
 }
 

@@ -17,7 +17,6 @@ import { useRouter } from "next/router";
 type CompanyInfo = {
   company_name: string;
   company_id: string;
-  company_pw: string;
   supervisor?: string;
   company_postal?: string;
   company_prefecture?: string;
@@ -32,7 +31,6 @@ export default function SignupAdmin(props: CompanyInfo) {
   const [companyInfo, setCompanyInfo] = useState<CompanyInfo>({
     company_name: "",
     company_id: "",
-    company_pw: "",
     supervisor: "",
     company_postal: "",
     company_prefecture: "",
