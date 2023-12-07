@@ -167,7 +167,9 @@ const AttendanceChecker = () => {
         </div>
         <div className={style.dashboard}>
           <h2>ダッシュボード</h2>
-          <p>Worked Hours: {calculateWorkHours()}</p>
+          <div className={style.information}>
+            <p>Worked Hours: {calculateWorkHours()}</p>
+          </div>
         </div>
       </div>
     </Layout>

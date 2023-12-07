@@ -1,12 +1,14 @@
 .btnWrap {
   position: absolute;
-  bottom: 10rem;
+  bottom: 4rem;
   left: 50%;
   transform: translateX(-50%);
   button {
-    padding: 0.4rem 1.8rem;
+    padding: 0.8rem 1.8rem;
     font-size: 1.6rem;
     border-radius: 10px;
-    border: solid 1px tomato;
+    background: #333;
+    color: #fefefe;
+    font-weight: 600;
   }
 }

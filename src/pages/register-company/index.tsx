@@ -26,7 +26,7 @@ type CompanyInfo = {
   company_email?: string;
 };
 
-export default function SignupAdmin(props: CompanyInfo) {
+export default function RegisterCompany(props: CompanyInfo) {
   const router = useRouter();
   const [companyInfo, setCompanyInfo] = useState<CompanyInfo>({
     company_name: "",
@@ -247,9 +247,20 @@ export default function SignupAdmin(props: CompanyInfo) {
 
         <div className={style.submitWrap}>
           <div>
-            <Link href={"/welcome"} aria-disabled>
+            <button
+              type="button"
+              onClick={() => {
+                if (typeof prevPath === "string") {
+                  router.push(prevPath); // Navigate back to the previous page
+                } else {
+                  // Handle the case when prevPath is null
+                  // For example, navigate to a default page
+                  router.push("/");
+                }
+              }}
+            >
               戻る
-            </Link>
+            </button>
           </div>
           <div>
             <button type="submit" disabled={isLoading}>

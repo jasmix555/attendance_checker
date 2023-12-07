@@ -9,12 +9,12 @@ import style from "@/styles/index.module.scss";
 import Link from "next/link";
 import Layout from "@/components/Layout";
 import Signout from "@/components/Signout";
+import Username from "@/components/Username";
 
 export default function Home() {
   const { user } = useAuthContext();
   const router = useRouter();
   const [companyName, setCompanyName] = useState<string>("");
-  const [adminName, setAdminName] = useState<string>("");
 
   useEffect(() => {
     const fetchData = async () => {
@@ -40,7 +40,6 @@ export default function Home() {
 
             // Update the companyName state variable
             setCompanyName(companyName);
-            setAdminName(adminName);
           } else {
             console.log(
               "CompanyInfo document does not exist for user:",
@@ -63,27 +62,29 @@ export default function Home() {
       <AuthGuard>
         {user ? (
           <>
-            <div>Home</div>
-            <div>
-              <p>{companyName}</p>
+            <div className={style.heading}>
+              <p>株式会社{companyName}</p>
             </div>
+            <div className={style.option}>
+              <div className={style.content}>
+                <Link href="/register-company">会社情報編集</Link>
+              </div>
 
-            <div>
-              <Link href="/register-company">Change Company info</Link>
-            </div>
-
-            <div className={style.wrapper}>
-              <button
-                type="button"
-                onClick={() => {
-                  const userId = getAuth().currentUser?.uid; // Get the current user's ID
-                  const prevPath = router.pathname; // Get the current page's path
-                  sessionStorage.setItem("prevPath", prevPath); // Store the prevPath in sessionStorage
-                  router.push(`/create-employee?companyId=${userId}`); // Include the userId in the URL
-                }}
-              >
-                従業員アカウント作成
-              </button>
+              <div className={style.content}>
+                <button
+                  type="button"
+                  onClick={() => {
+                    const userId = getAuth().currentUser?.uid; // Get the current user's ID
+                    const prevPath = router.pathname; // Get the current page's path
+                    sessionStorage.setItem("prevPath", prevPath); // Store the prevPath in sessionStorage
+                    router.push(`/create-employee?companyId=${userId}`); // Include the userId in the URL
+                  }}
+                >
+                  従業員
+                  <br />
+                  アカウント作成
+                </button>
+              </div>
             </div>
             <Signout />
           </>

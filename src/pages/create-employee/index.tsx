@@ -117,6 +117,13 @@ export default function CreateEmployeeAccount() {
               placeholder="例: ******"
             />
           </div>
+          <div className={style.content}>
+            <label htmlFor="role">役割</label>
+            <select name="role" id="role">
+              <option value="admin">管理者</option>
+              <option value="employee">従業員</option>
+            </select>
+          </div>
         </div>
         <div className={style.submitWrap}>
           <div>
