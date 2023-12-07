@@ -40,7 +40,7 @@
 
 .btnSubWrap {
   position: absolute;
-  bottom: 18rem;
+  top: 0;
   left: 0;
   width: 100%;
   padding: 5rem;
@@ -48,7 +48,7 @@
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  font-size: 2rem;
+  font-size: 1.4rem;
 
   .buttonSub {
     border-radius: 100px;

@@ -9,6 +9,7 @@ import style from "@/styles/index.module.scss";
 import Link from "next/link";
 import Layout from "@/components/Layout";
 import Signout from "@/components/Signout";
+import Administrator from "./administrator";
 
 export default function Home() {
   const { user } = useAuthContext();
@@ -88,7 +89,7 @@ export default function Home() {
             <Signout />
           </>
         ) : (
-          <Welcome />
+          <Administrator />
         )}
       </AuthGuard>
     </Layout>

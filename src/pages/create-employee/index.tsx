@@ -13,6 +13,7 @@ export default function CreateEmployeeAccount() {
     login_id: "",
     password: "",
     companyId: "",
+    role: "",
   });
 
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -64,7 +65,7 @@ export default function CreateEmployeeAccount() {
     <Layout>
       <form onSubmit={handleSubmit} className={style.form}>
         <div className={style.wrapper}>
-          <div className={style.header}>従業員アカウント作成</div>
+          <div className={style.header}>アカウント作成</div>
           <div className={style.content}>
             <label htmlFor="company_id">会社ID</label>
             <input
@@ -119,9 +120,20 @@ export default function CreateEmployeeAccount() {
           </div>
           <div className={style.content}>
             <label htmlFor="role">役割</label>
-            <select name="role" id="role">
+            <select
+              name="role"
+              id="role"
+              value={employeeInfo.role} // Bind the value to the role property
+              placeholder="役割を選択してください"
+              onChange={(e) =>
+                setEmployeeInfo({ ...employeeInfo, role: e.target.value })
+              }
+            >
               <option value="admin">管理者</option>
-              <option value="employee">従業員</option>
+              <option value="observer">責任者</option>
+              <option value="employee" selected>
+                従業員
+              </option>
             </select>
           </div>
         </div>
