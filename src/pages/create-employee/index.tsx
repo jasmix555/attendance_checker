@@ -52,7 +52,7 @@ export default function CreateEmployeeAccount() {
       });
 
       // Optionally, you can redirect the user to another page after successful registration
-      router.push("/welcome");
+      router.push("/");
     } catch (error) {
       console.error("Error creating employee account:", error);
       // Handle error
@@ -123,17 +123,14 @@ export default function CreateEmployeeAccount() {
             <select
               name="role"
               id="role"
-              value={employeeInfo.role} // Bind the value to the role property
-              placeholder="役割を選択してください"
+              value={employeeInfo.role || "employee"} // Set the default value to "employee"
               onChange={(e) =>
                 setEmployeeInfo({ ...employeeInfo, role: e.target.value })
               }
             >
               <option value="admin">管理者</option>
               <option value="observer">責任者</option>
-              <option value="employee" selected>
-                従業員
-              </option>
+              <option value="employee">従業員</option>
             </select>
           </div>
         </div>

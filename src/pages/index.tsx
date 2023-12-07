@@ -3,7 +3,6 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import { getFirestore, doc, getDoc } from "firebase/firestore/lite";
 import { useAuthContext } from "@/feature/provider/AuthProvider";
-import Welcome from "./welcome";
 import { getAuth, signOut } from "firebase/auth";
 import style from "@/styles/index.module.scss";
 import Link from "next/link";
@@ -15,6 +14,7 @@ export default function Home() {
   const { user } = useAuthContext();
   const router = useRouter();
   const [companyName, setCompanyName] = useState<string>("");
+  const [companyId, setCompanyId] = useState<string>("");
 
   useEffect(() => {
     const fetchData = async () => {
@@ -36,10 +36,10 @@ export default function Home() {
           if (companyInfoDoc.exists()) {
             const data = companyInfoDoc.data();
             const companyName = data.company_name;
-            // console.log("Company Name:", companyName);
+            const companyId = data.uid;
 
-            // Update the companyName state variable
             setCompanyName(companyName);
+            setCompanyId(companyId);
           } else {
             console.log(
               "CompanyInfo document does not exist for user:",
@@ -83,6 +83,37 @@ export default function Home() {
                   従業員
                   <br />
                   アカウント作成
+                </button>
+              </div>
+
+              <div className={style.content}>
+                <button
+                  type="button"
+                  onClick={() => {
+                    const prevPath = router.pathname; // Get the current page's path
+                    sessionStorage.setItem("prevPath", prevPath); // Store the prevPath in sessionStorage
+                    router.push(`/delete-employee?companyId=${companyId}`); // Include the userId in the URL
+                  }}
+                >
+                  従業員
+                  <br />
+                  アカウント削除
+                </button>
+              </div>
+
+              <div className={style.content}>
+                <button
+                  type="button"
+                  onClick={() => {
+                    const userId = getAuth().currentUser?.uid; // Get the current user's ID
+                    const prevPath = router.pathname; // Get the current page's path
+                    sessionStorage.setItem("prevPath", prevPath); // Store the prevPath in sessionStorage
+                    router.push(`/edit-employee?companyId=${userId}`); // Include the userId in the URL
+                  }}
+                >
+                  従業員
+                  <br />
+                  アカウント編集
                 </button>
               </div>
             </div>

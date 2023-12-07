@@ -16,7 +16,7 @@ export default function Signout() {
         // Use your custom Toast component for the logout message
       } finally {
         // Redirect the user to the login page after logout
-        router.push("/welcome");
+        router.push("/");
       }
     }, 2000); // Adjust the delay duration as needed
   };

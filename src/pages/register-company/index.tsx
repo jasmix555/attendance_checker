@@ -11,12 +11,11 @@ import {
   setDoc,
   updateDoc,
 } from "firebase/firestore";
-import Link from "next/link";
 import { useRouter } from "next/router";
 
 type CompanyInfo = {
   company_name: string;
-  company_id: string;
+  admin_name: string;
   supervisor?: string;
   company_postal?: string;
   company_prefecture?: string;
@@ -30,7 +29,7 @@ export default function RegisterCompany(props: CompanyInfo) {
   const router = useRouter();
   const [companyInfo, setCompanyInfo] = useState<CompanyInfo>({
     company_name: "",
-    company_id: "",
+    admin_name: "",
     supervisor: "",
     company_postal: "",
     company_prefecture: "",
@@ -39,7 +38,7 @@ export default function RegisterCompany(props: CompanyInfo) {
     company_tel: "",
     company_email: "",
   });
-  const prevPath = sessionStorage.getItem("prevPath");
+
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
@@ -69,8 +68,6 @@ export default function RegisterCompany(props: CompanyInfo) {
           uid: companyId,
         });
       }
-
-      sessionStorage.setItem("prevPath", router.pathname);
 
       // Redirect to create-employee page with the companyId in the query parameter
       router.push(`/create-employee?companyId=${companyId}`);
@@ -120,11 +117,11 @@ export default function RegisterCompany(props: CompanyInfo) {
             <label htmlFor="company_id">管理者</label>
             <input
               type="text"
-              value={companyInfo.company_id}
+              value={companyInfo.admin_name}
               name="company_id"
               id="company_id"
               onChange={(e) =>
-                setCompanyInfo({ ...companyInfo, company_id: e.target.value })
+                setCompanyInfo({ ...companyInfo, admin_name: e.target.value })
               }
               placeholder="例: 山田 太郎"
             />
