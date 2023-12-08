@@ -45,7 +45,6 @@ export default function DeleteEmployee() {
         }
       } catch (error) {
         console.error("Error fetching employees:", error);
-        // Handle error
       }
     };
 
@@ -90,15 +89,18 @@ export default function DeleteEmployee() {
       // Delete the document in Firestore
       await deleteDoc(employeeDocRef);
 
-      // Delete the user in Firebase Authentication
-      const auth = getAuth();
-      const userToDelete = await getDoc(doc(db, "employeeInfo", userId));
-      const userData = userToDelete.data();
+      //due to firebase functions to be a paid service, we will not delete the user in firebase authentication
+      //deleting another user's authentication is not provided by the default firebase functions
 
-      // Check if userData is defined before deleting the user
-      if (userData?.login_id) {
-        await deleteUser(auth.currentUser!); // Delete the currently authenticated user
-      }
+      // // Delete the user in Firebase Authentication
+      // const auth = getAuth();
+      // const userToDelete = await getDoc(doc(db, "employeeInfo", userId));
+      // const userData = userToDelete.data();
+
+      // // Check if userData is defined before deleting the user
+      // if (userData?.login_id) {
+      //   await deleteUser(auth.currentUser!); // Delete the currently authenticated user
+      // }
 
       router.push("/");
     } catch (error) {
