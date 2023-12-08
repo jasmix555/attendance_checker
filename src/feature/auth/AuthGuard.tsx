@@ -1,7 +1,7 @@
 import Layout from "@/components/Layout";
 import { useAuthContext } from "@/feature/provider/AuthProvider";
 import { useRouter } from "next/router";
-import type { ReactNode } from "react";
+import { ReactNode, useEffect } from "react";
 
 type Props = {
   children: ReactNode;
@@ -9,9 +9,22 @@ type Props = {
 
 export const AuthGuard = ({ children }: Props) => {
   const { user } = useAuthContext();
-  const { push } = useRouter();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (typeof user === "undefined") {
+      // Still loading, do nothing
+      return;
+    }
+
+    if (user === null) {
+      // User is not authenticated, redirect to the welcome page
+      router.replace("/welcome");
+    }
+  }, [user, router]);
 
   if (typeof user === "undefined") {
+    // Render a loading indicator
     return (
       <Layout>
         <div
@@ -32,10 +45,6 @@ export const AuthGuard = ({ children }: Props) => {
     );
   }
 
-  if (user === null) {
-    push("/welcome");
-    return null;
-  }
-
+  // User is authenticated, render the protected content
   return <>{children}</>;
 };

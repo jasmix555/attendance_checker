@@ -1,7 +1,12 @@
 import { FormEvent, useState, useEffect } from "react";
 import style from "@/styles/registration.module.scss";
 import Layout from "@/components/Layout";
-import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
+import {
+  getAuth,
+  createUserWithEmailAndPassword,
+  setPersistence,
+  browserSessionPersistence,
+} from "firebase/auth";
 import { useRouter } from "next/router";
 import { collection, doc, getFirestore, setDoc } from "firebase/firestore";
 
@@ -26,15 +31,47 @@ export default function CreateEmployeeAccount() {
     }
   }, [companyId]);
 
+  // const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+  //   e.preventDefault();
+  //   setIsLoading(true);
+
+  //   try {
+  //     const auth = getAuth();
+  //     const db = getFirestore();
+
+  //     const employeeInfoRef = collection(db, "employeeInfo");
+
+  //     // Use the create user function from Firebase Authentication
+  //     const userCredential = await createUserWithEmailAndPassword(
+  //       auth,
+  //       employeeInfo.login_id,
+  //       employeeInfo.password
+  //     );
+
+  //     // Save additional employee information in the "employeeInfo" collection
+  //     const employeeDocRef = doc(employeeInfoRef, userCredential.user.uid);
+  //     await setDoc(employeeDocRef, {
+  //       ...employeeInfo,
+  //       uid: userCredential.user.uid,
+  //       companyId: companyId, // Save the companyId
+  //     });
+
+  //     // Optionally, you can redirect the user to another page after successful registration
+  //     router.push("/");
+  //   } catch (error) {
+  //     console.error("Error creating employee account:", error);
+  //     // Handle error
+  //   } finally {
+  //     setIsLoading(false);
+  //   }
+  // };
+
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsLoading(true);
 
     try {
-      const auth = getAuth();
-      const db = getFirestore();
-
-      const employeeInfoRef = collection(db, "employeeInfo");
+      const auth = getAuth(); // Get the authentication instance
 
       // Use the create user function from Firebase Authentication
       const userCredential = await createUserWithEmailAndPassword(
@@ -43,16 +80,24 @@ export default function CreateEmployeeAccount() {
         employeeInfo.password
       );
 
-      // Save additional employee information in the "employeeInfo" collection
-      const employeeDocRef = doc(employeeInfoRef, userCredential.user.uid);
-      await setDoc(employeeDocRef, {
+      const db = getFirestore();
+      const employeeInfoRef = collection(db, "employeeInfo");
+
+      const createdEmployeeInfo = {
         ...employeeInfo,
         uid: userCredential.user.uid,
-        companyId: companyId, // Save the companyId
-      });
+        companyId: companyId,
+        role: employeeInfo.role || "employee",
+      };
+
+      // Save additional employee information in the "employeeInfo" collection
+      const employeeDocRef = doc(employeeInfoRef, userCredential.user.uid);
+      await setDoc(employeeDocRef, createdEmployeeInfo);
 
       // Optionally, you can redirect the user to another page after successful registration
       router.push("/");
+
+      // Do not sign out the admin, if you want to stay signed in as an admin
     } catch (error) {
       console.error("Error creating employee account:", error);
       // Handle error

@@ -90,9 +90,10 @@ export default function Home() {
                 <button
                   type="button"
                   onClick={() => {
+                    const userId = getAuth().currentUser?.uid; // Get the current user's ID
                     const prevPath = router.pathname; // Get the current page's path
                     sessionStorage.setItem("prevPath", prevPath); // Store the prevPath in sessionStorage
-                    router.push(`/delete-employee?companyId=${companyId}`); // Include the userId in the URL
+                    router.push(`/delete-employee?companyId=${userId}`); // Include the userId in the URL
                   }}
                 >
                   従業員
