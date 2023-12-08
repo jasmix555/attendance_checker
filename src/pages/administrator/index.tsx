@@ -9,7 +9,7 @@ export default function Administrator() {
 
       <div className={style.btnSubWrap}>
         <div className={style.buttonSub}>
-          <Link href={"/welcome"}>"テスト用"従業員ページ</Link>
+          <Link href={"/welcome"}>テスト用"従業員ページ</Link>
         </div>
       </div>
 
