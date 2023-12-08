@@ -9,7 +9,7 @@ export default function Welcome() {
 
       <div className={style.btnSubWrap}>
         <div className={style.buttonSub}>
-          <Link href={"/administrator"}>"テスト用"管理者ページ</Link>
+          <Link href={"/administrator"}>テスト用管理者ページ</Link>
         </div>
       </div>
 
