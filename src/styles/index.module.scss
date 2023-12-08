@@ -42,6 +42,11 @@
       align-items: center;
       justify-content: center;
       text-align: center;
+      outline: none;
+      pointer-events: pointer;
+      &:disabled {
+        background: var(--grey);
+      }
     }
   }
 }

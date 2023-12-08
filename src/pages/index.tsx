@@ -105,6 +105,7 @@ export default function Home() {
               <div className={style.content}>
                 <button
                   type="button"
+                  disabled
                   onClick={() => {
                     const userId = getAuth().currentUser?.uid; // Get the current user's ID
                     const prevPath = router.pathname; // Get the current page's path
