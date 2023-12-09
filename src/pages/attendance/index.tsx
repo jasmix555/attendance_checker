@@ -60,10 +60,16 @@ const AttendanceChecker = () => {
     const intervalId = setInterval(() => {
       setCurrentTime(dayjs());
     }, 1000);
+
+    // Fetch dashboard information on page load if userId exists
+    if (userId) {
+      sendInformationToDashboard();
+    }
+
     return () => {
       clearInterval(intervalId);
     };
-  }, []);
+  }, [userId]);
 
   const handleEvent = async (eventType: string) => {
     const eventTime = dayjs();
@@ -76,24 +82,24 @@ const AttendanceChecker = () => {
         const eventCollectionRef = collection(userDocRef, "events");
 
         await addDoc(eventCollectionRef, {
-          eventType: eventType,
+          eventType,
           timestamp: eventTime.toISOString(),
         });
 
         // Update the state and fetch information immediately after updating Firebase
         switch (eventType) {
-          case "Start Work":
+          case "出勤":
             setStartWork(eventTime);
             break;
-          case "Start Break":
+          case "休憩開始":
             setStartBreak(eventTime);
             setIsOnBreak(true);
             break;
-          case "End Break":
+          case "休憩終了":
             setEndBreak(eventTime);
             setIsOnBreak(false);
             break;
-          case "End Work":
+          case "退勤":
             setEndWork(eventTime);
             break;
           default:
@@ -132,15 +138,13 @@ const AttendanceChecker = () => {
     if (startWork && endWork) {
       const workHours = endWork.diff(startWork, "hour");
       const workMinutes = endWork.diff(startWork, "minute") % 60;
-      const workSeconds = endWork.diff(startWork, "second") % 60;
 
       const formattedWorkHours = String(workHours).padStart(2, "0");
       const formattedWorkMinutes = String(workMinutes).padStart(2, "0");
-      const formattedWorkSeconds = String(workSeconds).padStart(2, "0");
 
-      return `${formattedWorkHours}:${formattedWorkMinutes}:${formattedWorkSeconds}`;
+      return `${formattedWorkHours}:${formattedWorkMinutes}`;
     }
-    return "00:00:00";
+    return "00:00";
   };
 
   const getAttendanceState = () => {
@@ -187,7 +191,7 @@ const AttendanceChecker = () => {
               startWork ? style.start : style.start
             }`}
             disabled={startWork !== null}
-            onClick={() => handleEvent("Start Work")}
+            onClick={() => handleEvent("出勤")}
           >
             <span>
               <FaRightToBracket />
@@ -199,7 +203,7 @@ const AttendanceChecker = () => {
               isOnBreak ? style.break : style.break
             }`}
             disabled={startWork === null || endWork !== null}
-            onClick={() => handleEvent(isOnBreak ? "End Break" : "Start Break")}
+            onClick={() => handleEvent(isOnBreak ? "休憩終了" : "休憩開始")}
           >
             <span>{isOnBreak ? <FaCircleStop /> : <FaCirclePlay />} </span>
             {isOnBreak ? "休憩終了" : "休憩開始"}
@@ -207,7 +211,7 @@ const AttendanceChecker = () => {
           <button
             className={`${style.button} ${endWork ? style.end : style.end}`}
             disabled={startWork === null || endWork !== null || isOnBreak}
-            onClick={() => handleEvent("End Work")}
+            onClick={() => handleEvent("退勤")}
           >
             <span>
               <FaRightFromBracket />
