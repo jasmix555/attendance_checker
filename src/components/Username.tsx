@@ -49,7 +49,7 @@ const Username = () => {
         <div className={style.system}>勤怠管理</div>
       </div>
       <div className={style.name}>
-        {employeeName ? `${employeeName}さん` : "ゲストさん"}
+        {employeeName ? `${employeeName}` : "ゲスト"}さん
       </div>
     </div>
   );

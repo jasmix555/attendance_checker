@@ -12,21 +12,19 @@ import {
   FaUmbrellaBeach,
   FaCalendarDays,
 } from "react-icons/fa6";
-import Layout from "@/components/Layout";
-import Username from "@/components/Username";
+import { LuTimerReset } from "react-icons/lu";
 import Signout from "@/components/Signout";
 import {
   addDoc,
   collection,
   getFirestore,
   doc,
-  setDoc,
   getDocs,
   query,
-  where,
   orderBy,
 } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
+import LayoutUser from "@/components/LayoutUser";
 
 const holidayBtn = [
   {
@@ -35,12 +33,14 @@ const holidayBtn = [
     class: style.holiday,
     description: "有給休暇・特別休暇",
     description2: "体調不良・その他",
+    disabled: true,
   },
   {
     icon: <FaCalendarDays />,
     text: "勤怠変更申請",
     class: style.holiday,
     description: "勤怠時間変更・その他",
+    disabled: true,
   },
 ];
 
@@ -50,26 +50,12 @@ const AttendanceChecker = () => {
   const [startBreak, setStartBreak] = useState<dayjs.Dayjs | null>(null);
   const [endBreak, setEndBreak] = useState<dayjs.Dayjs | null>(null);
   const [endWork, setEndWork] = useState<dayjs.Dayjs | null>(null);
+  const [hasEndedWork, setHasEndedWork] = useState(false);
   const [isOnBreak, setIsOnBreak] = useState(false);
   const [todayEvents, setTodayEvents] = useState<any[]>([]);
+  const [resetState, setResetState] = useState(false);
   const auth = getAuth();
   const userId = auth.currentUser?.uid;
-
-  useEffect(() => {
-    dayjs.locale("ja");
-    const intervalId = setInterval(() => {
-      setCurrentTime(dayjs());
-    }, 1000);
-
-    // Fetch dashboard information on page load if userId exists
-    if (userId) {
-      sendInformationToDashboard();
-    }
-
-    return () => {
-      clearInterval(intervalId);
-    };
-  }, [userId]);
 
   const handleEvent = async (eventType: string) => {
     const eventTime = dayjs();
@@ -89,7 +75,9 @@ const AttendanceChecker = () => {
         // Update the state and fetch information immediately after updating Firebase
         switch (eventType) {
           case "出勤":
-            setStartWork(eventTime);
+            if (!hasEndedWork) {
+              setStartWork(eventTime);
+            }
             break;
           case "休憩開始":
             setStartBreak(eventTime);
@@ -101,6 +89,9 @@ const AttendanceChecker = () => {
             break;
           case "退勤":
             setEndWork(eventTime);
+            setHasEndedWork(true); // Set the flag to indicate the user has ended work
+            localStorage.setItem("endWorkState", "true"); // Store end work state in local storage
+            localStorage.setItem("endWorkTimestamp", eventTime.toISOString()); // Store end work timestamp
             break;
           default:
             break;
@@ -112,6 +103,39 @@ const AttendanceChecker = () => {
       console.error("Error adding document: ", error);
     }
   };
+
+  useEffect(() => {
+    dayjs.locale("ja");
+    const intervalId = setInterval(() => {
+      setCurrentTime(dayjs());
+    }, 1000);
+
+    // Fetch dashboard information on page load if userId exists
+    if (userId) {
+      sendInformationToDashboard();
+
+      // Check local storage for end work state
+      const storedEndWorkState = localStorage.getItem("endWorkState");
+      const storedEndWorkTimestamp = localStorage.getItem("endWorkTimestamp");
+
+      if (storedEndWorkState === "true" && storedEndWorkTimestamp) {
+        // Check if 24 hours have passed since the end work timestamp
+        const expirationTime = dayjs(storedEndWorkTimestamp).add(24, "hour");
+        if (dayjs().isBefore(expirationTime)) {
+          setEndWork(dayjs(storedEndWorkTimestamp));
+          setHasEndedWork(true);
+        } else {
+          // Reset the stored state
+          localStorage.removeItem("endWorkState");
+          localStorage.removeItem("endWorkTimestamp");
+        }
+      }
+    }
+
+    return () => {
+      clearInterval(intervalId);
+    };
+  }, [userId]);
 
   const sendInformationToDashboard = async () => {
     try {
@@ -135,16 +159,22 @@ const AttendanceChecker = () => {
   };
 
   const calculateWorkHours = () => {
-    if (startWork && endWork) {
-      const workHours = endWork.diff(startWork, "hour");
-      const workMinutes = endWork.diff(startWork, "minute") % 60;
-
-      const formattedWorkHours = String(workHours).padStart(2, "0");
-      const formattedWorkMinutes = String(workMinutes).padStart(2, "0");
-
-      return `${formattedWorkHours}:${formattedWorkMinutes}`;
+    if (!startWork || !hasEndedWork) {
+      return "00:00:00";
     }
-    return "00:00";
+
+    const endTime = isOnBreak
+      ? startBreak || endWork || dayjs()
+      : endBreak || endWork || dayjs();
+    const durationInMinutes = endTime.diff(startWork, "minute");
+
+    const hours = Math.floor(durationInMinutes / 60);
+    const minutes = durationInMinutes % 60;
+
+    const formattedWorkHours = String(hours).padStart(2, "0");
+    const formattedWorkMinutes = String(minutes).padStart(2, "0");
+
+    return `${formattedWorkHours}:${formattedWorkMinutes}:00`;
   };
 
   const getAttendanceState = () => {
@@ -166,11 +196,28 @@ const AttendanceChecker = () => {
 
   const { icon, text, class: attendanceClass } = getAttendanceState();
 
+  const handleResetState = () => {
+    setResetState(true); // Set the reset state flag
+    setStartWork(null);
+    setStartBreak(null);
+    setEndBreak(null);
+    setEndWork(null);
+    setHasEndedWork(false);
+    localStorage.removeItem("endWorkState"); // Remove end work state from local storage
+    localStorage.removeItem("endWorkTimestamp"); // Remove end work timestamp from local storage
+  };
+
   return (
-    <Layout>
-      <Username />
+    <LayoutUser>
       <Signout />
       <div className={style.wrapper}>
+        <div className={style.reset}>
+          <p>状態リセット</p>
+          <button onClick={handleResetState}>
+            <LuTimerReset />
+          </button>
+        </div>
+
         <div className={`${style.currentState} ${attendanceClass}`}>
           <div className={style.iconState}>{icon}</div>
           <div>
@@ -190,7 +237,7 @@ const AttendanceChecker = () => {
             className={`${style.button} ${
               startWork ? style.start : style.start
             }`}
-            disabled={startWork !== null}
+            disabled={startWork !== null || hasEndedWork} // Disable the button if startWork is not null or hasEndedWork is true
             onClick={() => handleEvent("出勤")}
           >
             <span>
@@ -221,7 +268,7 @@ const AttendanceChecker = () => {
         </div>
         <div className={style.holidayWrap}>
           {holidayBtn.map((btn, index) => (
-            <button key={index} className={btn.class}>
+            <button key={index} className={btn.class} disabled={btn.disabled}>
               <span className={style.icon}>{btn.icon}</span>
               <span className={style.fontL}>{btn.text}</span>
               <span>{btn.description}</span>
@@ -232,7 +279,7 @@ const AttendanceChecker = () => {
         <div className={style.dashboard}>
           <h2>ダッシュボード</h2>
           <div className={style.information}>
-            <p>本日の出勤時間: {calculateWorkHours()}</p>
+            {hasEndedWork && <p>本日の出勤時間: {calculateWorkHours()}</p>}
             <p>出勤履歴:</p>
             <ul>
               {todayEvents.map((event, index) => (
@@ -250,7 +297,7 @@ const AttendanceChecker = () => {
           </div>
         </div>
       </div>
-    </Layout>
+    </LayoutUser>
   );
 };
 
