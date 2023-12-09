@@ -15,6 +15,18 @@ import {
 import Layout from "@/components/Layout";
 import Username from "@/components/Username";
 import Signout from "@/components/Signout";
+import {
+  addDoc,
+  collection,
+  getFirestore,
+  doc,
+  setDoc,
+  getDocs,
+  query,
+  where,
+  orderBy,
+} from "firebase/firestore";
+import { getAuth } from "firebase/auth";
 
 const holidayBtn = [
   {
@@ -39,6 +51,9 @@ const AttendanceChecker = () => {
   const [endBreak, setEndBreak] = useState<dayjs.Dayjs | null>(null);
   const [endWork, setEndWork] = useState<dayjs.Dayjs | null>(null);
   const [isOnBreak, setIsOnBreak] = useState(false);
+  const [todayEvents, setTodayEvents] = useState<any[]>([]);
+  const auth = getAuth();
+  const userId = auth.currentUser?.uid;
 
   useEffect(() => {
     dayjs.locale("ja");
@@ -50,22 +65,67 @@ const AttendanceChecker = () => {
     };
   }, []);
 
-  const handleStartWork = () => {
-    setStartWork(dayjs());
+  const handleEvent = async (eventType: string) => {
+    const eventTime = dayjs();
+
+    try {
+      const db = getFirestore();
+
+      if (userId) {
+        const userDocRef = doc(db, "attendance", userId);
+        const eventCollectionRef = collection(userDocRef, "events");
+
+        await addDoc(eventCollectionRef, {
+          eventType: eventType,
+          timestamp: eventTime.toISOString(),
+        });
+
+        // Update the state and fetch information immediately after updating Firebase
+        switch (eventType) {
+          case "Start Work":
+            setStartWork(eventTime);
+            break;
+          case "Start Break":
+            setStartBreak(eventTime);
+            setIsOnBreak(true);
+            break;
+          case "End Break":
+            setEndBreak(eventTime);
+            setIsOnBreak(false);
+            break;
+          case "End Work":
+            setEndWork(eventTime);
+            break;
+          default:
+            break;
+        }
+
+        sendInformationToDashboard();
+      }
+    } catch (error) {
+      console.error("Error adding document: ", error);
+    }
   };
 
-  const handleStartBreak = () => {
-    setStartBreak(dayjs());
-    setIsOnBreak(true);
-  };
+  const sendInformationToDashboard = async () => {
+    try {
+      const db = getFirestore();
 
-  const handleEndBreak = () => {
-    setEndBreak(dayjs());
-    setIsOnBreak(false);
-  };
+      if (userId) {
+        const userDocRef = doc(db, "attendance", userId);
 
-  const handleEndWork = () => {
-    setEndWork(dayjs());
+        const eventsQuery = query(
+          collection(userDocRef, "events"),
+          orderBy("timestamp", "desc")
+        );
+        const querySnapshot = await getDocs(eventsQuery);
+
+        const eventsData = querySnapshot.docs.map((doc) => doc.data());
+        setTodayEvents(eventsData);
+      }
+    } catch (error) {
+      console.error("Error fetching information: ", error);
+    }
   };
 
   const calculateWorkHours = () => {
@@ -127,7 +187,7 @@ const AttendanceChecker = () => {
               startWork ? style.start : style.start
             }`}
             disabled={startWork !== null}
-            onClick={handleStartWork}
+            onClick={() => handleEvent("Start Work")}
           >
             <span>
               <FaRightToBracket />
@@ -139,7 +199,7 @@ const AttendanceChecker = () => {
               isOnBreak ? style.break : style.break
             }`}
             disabled={startWork === null || endWork !== null}
-            onClick={isOnBreak ? handleEndBreak : handleStartBreak}
+            onClick={() => handleEvent(isOnBreak ? "End Break" : "Start Break")}
           >
             <span>{isOnBreak ? <FaCircleStop /> : <FaCirclePlay />} </span>
             {isOnBreak ? "休憩終了" : "休憩開始"}
@@ -147,7 +207,7 @@ const AttendanceChecker = () => {
           <button
             className={`${style.button} ${endWork ? style.end : style.end}`}
             disabled={startWork === null || endWork !== null || isOnBreak}
-            onClick={handleEndWork}
+            onClick={() => handleEvent("End Work")}
           >
             <span>
               <FaRightFromBracket />
@@ -169,6 +229,20 @@ const AttendanceChecker = () => {
           <h2>ダッシュボード</h2>
           <div className={style.information}>
             <p>本日の出勤時間: {calculateWorkHours()}</p>
+            <p>出勤履歴:</p>
+            <ul>
+              {todayEvents.map((event, index) => (
+                <li key={index}>
+                  <span>{event.eventType}</span>
+                  <div className={style.time}>
+                    <span>
+                      {dayjs(event.timestamp).format("YY年MM月DD日(dd)")}
+                    </span>
+                    <span>{dayjs(event.timestamp).format("HH:mm")}</span>
+                  </div>
+                </li>
+              ))}
+            </ul>
           </div>
         </div>
       </div>

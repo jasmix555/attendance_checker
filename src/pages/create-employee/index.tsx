@@ -22,58 +22,21 @@ export default function CreateEmployeeAccount() {
   });
 
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const { companyId } = router.query; // Get companyId from the query parameter
+  const { companyId } = router.query;
 
   useEffect(() => {
-    // Check if companyId is a string before updating the state
     if (typeof companyId === "string") {
       setEmployeeInfo((prevInfo) => ({ ...prevInfo, companyId: companyId }));
     }
   }, [companyId]);
-
-  // const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
-  //   e.preventDefault();
-  //   setIsLoading(true);
-
-  //   try {
-  //     const auth = getAuth();
-  //     const db = getFirestore();
-
-  //     const employeeInfoRef = collection(db, "employeeInfo");
-
-  //     // Use the create user function from Firebase Authentication
-  //     const userCredential = await createUserWithEmailAndPassword(
-  //       auth,
-  //       employeeInfo.login_id,
-  //       employeeInfo.password
-  //     );
-
-  //     // Save additional employee information in the "employeeInfo" collection
-  //     const employeeDocRef = doc(employeeInfoRef, userCredential.user.uid);
-  //     await setDoc(employeeDocRef, {
-  //       ...employeeInfo,
-  //       uid: userCredential.user.uid,
-  //       companyId: companyId, // Save the companyId
-  //     });
-
-  //     // Optionally, you can redirect the user to another page after successful registration
-  //     router.push("/");
-  //   } catch (error) {
-  //     console.error("Error creating employee account:", error);
-  //     // Handle error
-  //   } finally {
-  //     setIsLoading(false);
-  //   }
-  // };
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsLoading(true);
 
     try {
-      const auth = getAuth(); // Get the authentication instance
+      const auth = getAuth();
 
-      // Use the create user function from Firebase Authentication
       const userCredential = await createUserWithEmailAndPassword(
         auth,
         employeeInfo.login_id,
@@ -90,17 +53,12 @@ export default function CreateEmployeeAccount() {
         role: employeeInfo.role || "employee",
       };
 
-      // Save additional employee information in the "employeeInfo" collection
       const employeeDocRef = doc(employeeInfoRef, userCredential.user.uid);
       await setDoc(employeeDocRef, createdEmployeeInfo);
 
-      // Optionally, you can redirect the user to another page after successful registration
-      router.push("/");
-
-      // Do not sign out the admin, if you want to stay signed in as an admin
+      router.push("/employee-created");
     } catch (error) {
       console.error("Error creating employee account:", error);
-      // Handle error
     } finally {
       setIsLoading(false);
     }
@@ -138,7 +96,7 @@ export default function CreateEmployeeAccount() {
             />
           </div>
           <div className={style.content}>
-            <label htmlFor="login_id">ログインID</label>
+            <label htmlFor="login_id">従業員メーりアドレス</label>
             <input
               type="text"
               value={employeeInfo.login_id}
