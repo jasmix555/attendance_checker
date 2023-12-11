@@ -1,7 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import dayjs from "dayjs";
 import "dayjs/locale/ja";
-import { useEffect } from "react";
 import style from "@/styles/attendance.module.scss";
 import {
   FaRightToBracket,
@@ -22,10 +21,10 @@ import {
   getDocs,
   query,
   orderBy,
+  updateDoc,
 } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
 import LayoutUser from "@/components/LayoutUser";
-import { set } from "firebase/database";
 
 const holidayBtn = [
   {
@@ -55,55 +54,121 @@ const AttendanceChecker = () => {
   const [isOnBreak, setIsOnBreak] = useState(false);
   const [todayEvents, setTodayEvents] = useState<any[]>([]);
   const [resetState, setResetState] = useState(false);
+  const [breakTimer, setBreakTimer] = useState<number | null>(null);
   const auth = getAuth();
   const userId = auth.currentUser?.uid;
+  const db = getFirestore();
+  const userDocRef = userId ? doc(db, "attendance", userId) : null;
+
+  const getBreakDuration = () => {
+    if (!startBreak || !endBreak) {
+      return 0;
+    }
+    return endBreak.diff(startBreak, "minute");
+  };
+
+  const sendInformationToDashboard = async () => {
+    try {
+      if (userDocRef) {
+        const eventsQuery = query(
+          collection(userDocRef, "events"),
+          orderBy("timestamp", "desc")
+        );
+        const querySnapshot = await getDocs(eventsQuery);
+
+        const eventsData = querySnapshot.docs.map((doc) => doc.data());
+        setTodayEvents(eventsData);
+      }
+    } catch (error) {
+      console.error("Error fetching information: ", error);
+    }
+  };
+
+  const handleResetState = async () => {
+    setResetState(true);
+    setStartWork(null);
+    setStartBreak(null);
+    setEndBreak(null);
+    setEndWork(null);
+    setHasEndedWork(false);
+    setIsOnBreak(false);
+
+    try {
+      if (userDocRef) {
+        // Update the user's latest state in Firestore after resetting the state
+        await updateDoc(userDocRef, {
+          startWork: null,
+          startBreak: null,
+          endBreak: null,
+          endWork: null,
+          hasEndedWork: false,
+          isOnBreak: false,
+          todayEvents: [],
+          resetState: true,
+          breakTimer: null,
+        });
+      }
+    } catch (error) {
+      console.error("Error updating document: ", error);
+    }
+  };
 
   const handleEvent = async (eventType: string) => {
     const eventTime = dayjs();
+    let breakIntervalId: NodeJS.Timeout | null = null;
 
     try {
-      const db = getFirestore();
-
-      if (userId) {
-        const userDocRef = doc(db, "attendance", userId);
+      if (userDocRef) {
         const eventCollectionRef = collection(userDocRef, "events");
 
+        // Add attendance event to Firestore
         await addDoc(eventCollectionRef, {
           eventType,
           timestamp: eventTime.toISOString(),
         });
 
-        // Update the state and fetch information immediately after updating Firebase
         switch (eventType) {
           case "出勤":
             if (!hasEndedWork) {
               setStartWork(eventTime);
             }
             break;
+
           case "休憩開始":
             setStartBreak(eventTime);
             setIsOnBreak(true);
 
             // Forcefully end the break after 1 hour
-            setTimeout(() => {
-              handleEvent("休憩終了");
+            setTimeout(async () => {
+              await handleEvent("休憩終了");
             }, 60 * 60 * 1000);
 
             // Disable the "End Break" button for 1 hour
             setTimeout(() => {
               setIsOnBreak(false);
-            }, 30 * 60 * 1000);
+            }, 60 * 60 * 1000);
+
+            // Start the break timer
+            setBreakTimer(60 * 60); // Set the initial break duration to 1 hour
+
+            breakIntervalId = setInterval(() => {
+              setBreakTimer((prevTime) =>
+                prevTime !== null ? prevTime - 1 : null
+              );
+            }, 1000);
             break;
+
           case "休憩終了":
             setEndBreak(eventTime);
             setIsOnBreak(false);
+            breakIntervalId && clearInterval(breakIntervalId); // Clear the break timer interval
             break;
+
           case "退勤":
             setEndWork(eventTime);
             setHasEndedWork(true);
-            localStorage.setItem("endWorkState", "true");
-            localStorage.setItem("endWorkTimestamp", eventTime.toISOString());
             break;
+
           default:
             break;
         }
@@ -121,50 +186,31 @@ const AttendanceChecker = () => {
       setCurrentTime(dayjs());
     }, 1000);
 
-    // Fetch dashboard information on page load if userId exists
     if (userId) {
       sendInformationToDashboard();
-
-      const storedEndWorkState = localStorage.getItem("endWorkState");
-      const storedEndWorkTimestamp = localStorage.getItem("endWorkTimestamp");
-
-      if (storedEndWorkState === "true" && storedEndWorkTimestamp) {
-        const expirationTime = dayjs(storedEndWorkTimestamp).add(24, "hour");
-        if (dayjs().isBefore(expirationTime)) {
-          setEndWork(dayjs(storedEndWorkTimestamp));
-          setHasEndedWork(true);
-        } else {
-          localStorage.removeItem("endWorkState");
-          localStorage.removeItem("endWorkTimestamp");
-        }
-      }
     }
 
+    let breakIntervalId: NodeJS.Timeout | null = null;
+
+    if (isOnBreak) {
+      const duration = getBreakDuration();
+      const remainingTime = Math.max(0, 60 * 60 - duration);
+
+      setBreakTimer(remainingTime);
+
+      breakIntervalId = setInterval(() => {
+        setBreakTimer((prevTime) => (prevTime !== null ? prevTime - 1 : null));
+      }, 1000);
+    }
+
+    // Clear the break timer interval when the component unmounts or when the break ends
     return () => {
       clearInterval(intervalId);
-    };
-  }, [userId]);
-
-  const sendInformationToDashboard = async () => {
-    try {
-      const db = getFirestore();
-
-      if (userId) {
-        const userDocRef = doc(db, "attendance", userId);
-
-        const eventsQuery = query(
-          collection(userDocRef, "events"),
-          orderBy("timestamp", "desc")
-        );
-        const querySnapshot = await getDocs(eventsQuery);
-
-        const eventsData = querySnapshot.docs.map((doc) => doc.data());
-        setTodayEvents(eventsData);
+      if (breakIntervalId !== null) {
+        clearInterval(breakIntervalId);
       }
-    } catch (error) {
-      console.error("Error fetching information: ", error);
-    }
-  };
+    };
+  }, [userId, isOnBreak, startBreak, endBreak]);
 
   const calculateWorkHours = () => {
     if (!startWork || !hasEndedWork) {
@@ -182,14 +228,6 @@ const AttendanceChecker = () => {
     const formattedWorkMinutes = String(minutes).padStart(2, "0");
 
     return `${formattedWorkHours}:${formattedWorkMinutes}:00`;
-  };
-
-  const getBreakDuration = () => {
-    if (!startBreak || !endBreak) {
-      return 0;
-    }
-
-    return endBreak.diff(startBreak, "minute");
   };
 
   const getAttendanceState = () => {
@@ -210,18 +248,6 @@ const AttendanceChecker = () => {
   };
 
   const { icon, text, class: attendanceClass } = getAttendanceState();
-
-  const handleResetState = () => {
-    setResetState(true);
-    setStartWork(null);
-    setStartBreak(null);
-    setEndBreak(null);
-    setEndWork(null);
-    setHasEndedWork(false);
-    setIsOnBreak(false); // Reset break state
-    localStorage.removeItem("endWorkState");
-    localStorage.removeItem("endWorkTimestamp");
-  };
 
   return (
     <LayoutUser>
@@ -261,26 +287,36 @@ const AttendanceChecker = () => {
             </span>
             出勤
           </button>
-          {startWork ? (
+          <div>
+            {isOnBreak && (
+              <p className={style.breakTimer}>
+                休憩終了まで{" "}
+                {`${Math.floor(breakTimer! / 3600)
+                  .toString()
+                  .padStart(2, "0")}:${Math.floor((breakTimer! % 3600) / 60)
+                  .toString()
+                  .padStart(2, "0")}:${(breakTimer! % 60)
+                  .toString()
+                  .padStart(2, "0")}`}
+              </p>
+            )}
+
             <button
               className={`${style.button} ${
                 isOnBreak ? style.break : style.break
               }`}
-              disabled={isOnBreak || endWork !== null}
+              disabled={
+                isOnBreak ||
+                endWork !== null ||
+                startWork === null ||
+                (startBreak !== null && dayjs().diff(startBreak, "hour") < 1)
+              }
               onClick={() => handleEvent(isOnBreak ? "休憩終了" : "休憩開始")}
             >
               <span>{isOnBreak ? <FaCircleStop /> : <FaCirclePlay />} </span>
               {isOnBreak ? "休憩終了" : "休憩開始"}
             </button>
-          ) : (
-            <button
-              className={`${style.button} ${style.break}`}
-              disabled={true} // Disable the button if startWork is not set
-            >
-              <span>{isOnBreak ? <FaCircleStop /> : <FaCirclePlay />} </span>
-              {isOnBreak ? "休憩終了" : "休憩開始"}
-            </button>
-          )}
+          </div>
           <button
             className={`${style.button} ${endWork ? style.end : style.end}`}
             disabled={startWork === null || endWork !== null || isOnBreak}
